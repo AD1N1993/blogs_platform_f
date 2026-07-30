@@ -18,7 +18,7 @@ const NotFoundPage = lazy(() =>
 export const App = () => (
     <AppLayout>
         <Suspense fallback={<Spinner />}>
-            <Routes> 
+            <Routes>
                 <Route
                     path={APPLICATION_ROUTES.root}
                     element={<Navigate to={APPLICATION_ROUTES.blogs} replace />}

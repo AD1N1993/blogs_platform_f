@@ -1,9 +1,14 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-import type { BlogsFilter, BlogsSort } from '#/types/blog';
+import type { BlogSortPresetKey } from '#/utils/sorting';
 
-const initialState: BlogsFilter = {
-    search: '',
+export type BlogsFilterState = {
+    searchNameTerm: string;
+    sort: BlogSortPresetKey;
+};
+
+const initialState: BlogsFilterState = {
+    searchNameTerm: '',
     sort: 'newest',
 };
 
@@ -12,9 +17,9 @@ export const blogsFilterSlice = createSlice({
     initialState,
     reducers: {
         setBlogsSearch: (state, { payload }: PayloadAction<string>) => {
-            state.search = payload;
+            state.searchNameTerm = payload;
         },
-        setBlogsSort: (state, { payload }: PayloadAction<BlogsSort>) => {
+        setBlogsSort: (state, { payload }: PayloadAction<BlogSortPresetKey>) => {
             state.sort = payload;
         },
     },

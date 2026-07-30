@@ -7,7 +7,7 @@ test.describe('Blogs', () => {
         await expect(page.getByRole('heading', { name: 'Blogger Platform' })).toBeVisible();
         await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
         await expect(page.getByRole('heading', { name: 'Blogs', level: 2 })).toBeVisible();
-        await expect(page.getByText('The best blog in our village')).toBeVisible();
+        await expect(page.getByText('The best blog')).toBeVisible();
     });
 
     test('root redirects to blogs', async ({ page }) => {
@@ -18,22 +18,22 @@ test.describe('Blogs', () => {
 
     test('search filters the list', async ({ page }) => {
         await page.goto('/blogs');
-        await expect(page.getByText('The best blog in our village')).toBeVisible();
+        await expect(page.getByText('The best blog')).toBeVisible();
 
         await page.getByLabel('Search').fill('Warriors');
 
         await expect(page.getByText('Warriors')).toBeVisible();
-        await expect(page.getByText('The best blog in our village')).toBeHidden();
+        await expect(page.getByText('The best blog')).toBeHidden();
     });
 
     test('show more appends blogs to the same list', async ({ page }) => {
         await page.goto('/blogs');
-        await expect(page.getByText('The best blog in our village')).toBeVisible();
+        await expect(page.getByText('The best blog')).toBeVisible();
 
         await page.getByRole('button', { name: /show more/i }).click();
 
         await expect(page.getByText('Space and beyond')).toBeVisible();
-        await expect(page.getByText('The best blog in our village')).toBeVisible();
+        await expect(page.getByText('The best blog')).toBeVisible();
         await expect(page.getByRole('button', { name: /show more/i })).toBeHidden();
     });
 

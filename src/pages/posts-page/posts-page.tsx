@@ -1,22 +1,16 @@
 import { PageHeader } from '#/components/page-header';
 import { PostCard } from '#/components/post-card';
 import { ShowMoreButton } from '#/components/show-more-button';
-import { SortSelect, type SortOption } from '#/components/sort-select';
+import { SortSelect } from '#/components/sort-select';
 import { Spinner } from '#/components/spinner';
 import { Toolbar } from '#/components/toolbar';
 import { useAppDispatch, useAppSelector } from '#/hooks/app';
 import { usePostsQuery } from '#/hooks/use-posts';
-import type { PostsSort } from '#/types/post';
+import { POST_SORT_OPTIONS } from '#/utils/sorting';
 import { postsFilterSelectors } from '#selectors';
 import { setPostsSort } from '#slices/posts-filter-slice';
 
 import styles from './posts-page.module.css';
-
-const SORT_OPTIONS: SortOption<PostsSort>[] = [
-    { value: 'newest', label: 'New posts first' },
-    { value: 'oldest', label: 'Old posts first' },
-    { value: 'title', label: 'By title' },
-];
 
 export const PostsPage = () => {
     const dispatch = useAppDispatch();
@@ -25,7 +19,7 @@ export const PostsPage = () => {
     const { data, isPending, isError, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
         usePostsQuery(filter);
 
-    const posts = data?.pages.flatMap((page) => page.content) ?? [];
+    const posts = data?.pages.flatMap((page) => page.items) ?? [];
 
     return (
         <div className={styles.page}>
@@ -34,8 +28,8 @@ export const PostsPage = () => {
             <Toolbar
                 trailing={
                     <SortSelect
-                        value={filter.sort ?? 'newest'}
-                        options={SORT_OPTIONS}
+                        value={filter.sort}
+                        options={POST_SORT_OPTIONS}
                         onChange={(sort) => dispatch(setPostsSort(sort))}
                         label='Posts sorting'
                     />

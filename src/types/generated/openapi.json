@@ -1,0 +1,910 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Blog Platform API",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/testing/all-data": {
+            "delete": {
+                "summary": "Clear database: delete all data from all tables/collections",
+                "tags": ["Testing"],
+                "responses": {
+                    "204": {
+                        "description": "All data deleted"
+                    }
+                }
+            }
+        },
+        "/posts": {
+            "get": {
+                "summary": "Get a paginated list of posts",
+                "tags": ["Posts"],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/PageNumber"
+                    },
+                    {
+                        "$ref": "#/components/parameters/PageSize"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortBy",
+                        "required": false,
+                        "description": "Field to sort by (unknown fields fall back to createdAt)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "title",
+                                "shortDescription",
+                                "content",
+                                "blogName",
+                                "createdAt"
+                            ],
+                            "default": "createdAt"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of posts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostPaginator"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new post",
+                "tags": ["Posts"],
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostInputModel"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The post was successfully created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostViewModel"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error (including non-existent blogId)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/posts/{id}": {
+            "get": {
+                "summary": "Get a post by ID",
+                "tags": ["Posts"],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/PostId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested post",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostViewModel"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ObjectId format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a post by ID",
+                "tags": ["Posts"],
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/PostId"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostInputModel"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Post updated successfully"
+                    },
+                    "400": {
+                        "description": "Validation error (including non-existent blogId)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a post by ID",
+                "tags": ["Posts"],
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/PostId"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Post deleted successfully"
+                    },
+                    "400": {
+                        "description": "Invalid ObjectId format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                }
+            }
+        },
+        "/blogs": {
+            "get": {
+                "summary": "Get a paginated list of blogs",
+                "tags": ["Blogs"],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "searchNameTerm",
+                        "required": false,
+                        "description": "Case-insensitive search by blog name",
+                        "schema": {
+                            "type": "string",
+                            "example": "dev"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/PageNumber"
+                    },
+                    {
+                        "$ref": "#/components/parameters/PageSize"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortBy",
+                        "required": false,
+                        "description": "Field to sort by (unknown fields fall back to createdAt)",
+                        "schema": {
+                            "type": "string",
+                            "enum": ["name", "description", "websiteUrl", "createdAt"],
+                            "default": "createdAt"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of blogs",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BlogPaginator"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new blog",
+                "tags": ["Blogs"],
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BlogInputModel"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The blog was successfully created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BlogViewModel"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/blogs/{id}": {
+            "get": {
+                "summary": "Get a blog by ID",
+                "tags": ["Blogs"],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/BlogId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested blog",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BlogViewModel"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ObjectId format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Blog not found"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a blog by ID",
+                "tags": ["Blogs"],
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/BlogId"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BlogInputModel"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Blog updated successfully"
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Blog not found"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a blog by ID",
+                "tags": ["Blogs"],
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/BlogId"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Blog deleted successfully"
+                    },
+                    "400": {
+                        "description": "Invalid ObjectId format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Blog not found"
+                    }
+                }
+            }
+        },
+        "/blogs/{blogId}/posts": {
+            "get": {
+                "summary": "Get a paginated list of posts for a specific blog",
+                "tags": ["Blogs"],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/BlogIdPath"
+                    },
+                    {
+                        "$ref": "#/components/parameters/PageNumber"
+                    },
+                    {
+                        "$ref": "#/components/parameters/PageSize"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortBy",
+                        "required": false,
+                        "description": "Field to sort by (unknown fields fall back to createdAt)",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "title",
+                                "shortDescription",
+                                "content",
+                                "blogName",
+                                "createdAt"
+                            ],
+                            "default": "createdAt"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of posts of the blog",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostPaginator"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid blogId format or query parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Blog not found"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new post for a specific blog",
+                "tags": ["Blogs"],
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/BlogIdPath"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BlogPostInputModel"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The post was successfully created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostViewModel"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Blog not found"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "parameters": {
+            "PostId": {
+                "in": "path",
+                "name": "id",
+                "required": true,
+                "description": "MongoDB ObjectId of the post",
+                "schema": {
+                    "type": "string",
+                    "example": "66efeaadeb3dafea3c3971fb"
+                }
+            },
+            "PageNumber": {
+                "in": "query",
+                "name": "pageNumber",
+                "required": false,
+                "description": "Page number (positive integer)",
+                "schema": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 1
+                }
+            },
+            "PageSize": {
+                "in": "query",
+                "name": "pageSize",
+                "required": false,
+                "description": "Page size (1-20)",
+                "schema": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "default": 10
+                }
+            },
+            "SortDirection": {
+                "in": "query",
+                "name": "sortDirection",
+                "required": false,
+                "description": "Sort direction",
+                "schema": {
+                    "type": "string",
+                    "enum": ["asc", "desc"],
+                    "default": "desc"
+                }
+            },
+            "BlogId": {
+                "in": "path",
+                "name": "id",
+                "required": true,
+                "description": "MongoDB ObjectId of the blog",
+                "schema": {
+                    "type": "string",
+                    "example": "66efeaadeb3dafea3c3971fb"
+                }
+            },
+            "BlogIdPath": {
+                "in": "path",
+                "name": "blogId",
+                "required": true,
+                "description": "MongoDB ObjectId of the blog",
+                "schema": {
+                    "type": "string",
+                    "example": "66efeaadeb3dafea3c3971fb"
+                }
+            }
+        },
+        "schemas": {
+            "PostViewModel": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "title",
+                    "shortDescription",
+                    "content",
+                    "blogId",
+                    "blogName",
+                    "createdAt"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "MongoDB ObjectId of the post",
+                        "example": "66efeaadeb3dafea3c3971fb"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Post title (1-30 chars)",
+                        "example": "Express 5 release notes"
+                    },
+                    "shortDescription": {
+                        "type": "string",
+                        "description": "Short description (1-100 chars)",
+                        "example": "What changed in Express 5"
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "Post content (1-1000 chars)",
+                        "example": "Express 5 finally ships async error handling..."
+                    },
+                    "blogId": {
+                        "type": "string",
+                        "description": "MongoDB ObjectId of the parent blog",
+                        "example": "66efeaadeb3dafea3c3971fb"
+                    },
+                    "blogName": {
+                        "type": "string",
+                        "description": "Name of the parent blog (denormalized)",
+                        "example": "Dev Blog"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-07-30T10:15:30.000Z"
+                    }
+                }
+            },
+            "PostInputModel": {
+                "type": "object",
+                "required": ["title", "shortDescription", "content", "blogId"],
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "maxLength": 30,
+                        "description": "Post title (1-30 chars)",
+                        "example": "Express 5 release notes"
+                    },
+                    "shortDescription": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Short description (1-100 chars)",
+                        "example": "What changed in Express 5"
+                    },
+                    "content": {
+                        "type": "string",
+                        "maxLength": 1000,
+                        "description": "Post content (1-1000 chars)",
+                        "example": "Express 5 finally ships async error handling..."
+                    },
+                    "blogId": {
+                        "type": "string",
+                        "description": "Must reference an existing blog",
+                        "example": "66efeaadeb3dafea3c3971fb"
+                    }
+                }
+            },
+            "BlogPostInputModel": {
+                "type": "object",
+                "required": ["title", "shortDescription", "content"],
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "maxLength": 30,
+                        "description": "Post title (1-30 chars)",
+                        "example": "Express 5 release notes"
+                    },
+                    "shortDescription": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Short description (1-100 chars)",
+                        "example": "What changed in Express 5"
+                    },
+                    "content": {
+                        "type": "string",
+                        "maxLength": 1000,
+                        "description": "Post content (1-1000 chars)",
+                        "example": "Express 5 finally ships async error handling..."
+                    }
+                }
+            },
+            "PostPaginator": {
+                "type": "object",
+                "required": ["pagesCount", "page", "pageSize", "totalCount", "items"],
+                "properties": {
+                    "pagesCount": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "totalCount": {
+                        "type": "integer",
+                        "example": 25
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PostViewModel"
+                        }
+                    }
+                }
+            },
+            "ValidationError": {
+                "type": "object",
+                "required": ["field", "message"],
+                "properties": {
+                    "field": {
+                        "type": "string",
+                        "example": "name"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "name is required and max length is 15"
+                    }
+                }
+            },
+            "ValidationErrorResponse": {
+                "type": "object",
+                "required": ["errorsMessages"],
+                "properties": {
+                    "errorsMessages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        }
+                    }
+                }
+            },
+            "BlogViewModel": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "websiteUrl",
+                    "createdAt",
+                    "isMembership"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "MongoDB ObjectId of the blog",
+                        "example": "66efeaadeb3dafea3c3971fb"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Blog name (1-15 chars)",
+                        "example": "Dev Blog"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Blog description (1-500 chars)",
+                        "example": "Notes about backend development"
+                    },
+                    "websiteUrl": {
+                        "type": "string",
+                        "description": "Blog website URL (https, 1-100 chars)",
+                        "example": "https://example.com/blog"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-07-30T10:15:30.000Z"
+                    },
+                    "isMembership": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                }
+            },
+            "BlogInputModel": {
+                "type": "object",
+                "required": ["name", "description", "websiteUrl"],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 15,
+                        "description": "Blog name (1-15 chars)",
+                        "example": "Dev Blog"
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 500,
+                        "description": "Blog description (1-500 chars)",
+                        "example": "Notes about backend development"
+                    },
+                    "websiteUrl": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Must be a valid https URL",
+                        "example": "https://example.com/blog"
+                    }
+                }
+            },
+            "BlogPaginator": {
+                "type": "object",
+                "required": ["pagesCount", "page", "pageSize", "totalCount", "items"],
+                "properties": {
+                    "pagesCount": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "totalCount": {
+                        "type": "integer",
+                        "example": 25
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BlogViewModel"
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "BasicAuth": {
+                "type": "http",
+                "scheme": "basic"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Testing",
+            "description": "API for clearing the database"
+        },
+        {
+            "name": "Posts",
+            "description": "API for managing posts"
+        },
+        {
+            "name": "Blogs",
+            "description": "API for managing blogs"
+        }
+    ]
+}

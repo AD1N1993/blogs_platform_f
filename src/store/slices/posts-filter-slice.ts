@@ -1,8 +1,12 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-import type { PostsFilter, PostsSort } from '#/types/post';
+import type { PostSortPresetKey } from '#/utils/sorting';
 
-const initialState: PostsFilter = {
+export type PostsFilterState = {
+    sort: PostSortPresetKey;
+};
+
+const initialState: PostsFilterState = {
     sort: 'newest',
 };
 
@@ -10,7 +14,7 @@ export const postsFilterSlice = createSlice({
     name: 'postsFilter',
     initialState,
     reducers: {
-        setPostsSort: (state, { payload }: PayloadAction<PostsSort>) => {
+        setPostsSort: (state, { payload }: PayloadAction<PostSortPresetKey>) => {
             state.sort = payload;
         },
     },

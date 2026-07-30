@@ -4,29 +4,23 @@ import { BlogCard } from '#/components/blog-card';
 import { PageHeader } from '#/components/page-header';
 import { SearchInput } from '#/components/search-input';
 import { ShowMoreButton } from '#/components/show-more-button';
-import { SortSelect, type SortOption } from '#/components/sort-select';
+import { SortSelect } from '#/components/sort-select';
 import { Spinner } from '#/components/spinner';
 import { Toolbar } from '#/components/toolbar';
 import { useAppDispatch, useAppSelector } from '#/hooks/app';
 import { useBlogsQuery } from '#/hooks/use-blogs';
 import { useDebounce } from '#/hooks/use-debounce';
-import type { BlogsSort } from '#/types/blog';
+import { BLOG_SORT_OPTIONS } from '#/utils/sorting';
 import { blogsFilterSelectors } from '#selectors';
 import { setBlogsSearch, setBlogsSort } from '#slices/blogs-filter-slice';
 
 import styles from './blogs-page.module.css';
 
-const SORT_OPTIONS: SortOption<BlogsSort>[] = [
-    { value: 'newest', label: 'New blogs first' },
-    { value: 'oldest', label: 'Old blogs first' },
-    { value: 'name', label: 'By name' },
-];
-
 export const BlogsPage = () => {
     const dispatch = useAppDispatch();
     const filter = useAppSelector(blogsFilterSelectors.filter);
 
-    const [searchInput, setSearchInput] = useState(filter.search ?? '');
+    const [searchInput, setSearchInput] = useState(filter.searchNameTerm);
     const debouncedSearch = useDebounce(searchInput);
 
     useEffect(() => {
@@ -36,7 +30,7 @@ export const BlogsPage = () => {
     const { data, isPending, isError, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
         useBlogsQuery(filter);
 
-    const blogs = data?.pages.flatMap((page) => page.content) ?? [];
+    const blogs = data?.pages.flatMap((page) => page.items) ?? [];
 
     return (
         <div className={styles.page}>
@@ -45,8 +39,8 @@ export const BlogsPage = () => {
             <Toolbar
                 trailing={
                     <SortSelect
-                        value={filter.sort ?? 'newest'}
-                        options={SORT_OPTIONS}
+                        value={filter.sort}
+                        options={BLOG_SORT_OPTIONS}
                         onChange={(sort) => dispatch(setBlogsSort(sort))}
                         label='Blogs sorting'
                     />

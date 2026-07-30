@@ -2,7 +2,7 @@ import type { ReduxStore } from '#/types/store';
 
 export const blogsFilterSelectors = {
     filter: (state: ReduxStore) => state.blogsFilter,
-    search: (state: ReduxStore) => state.blogsFilter.search,
+    searchNameTerm: (state: ReduxStore) => state.blogsFilter.searchNameTerm,
     sort: (state: ReduxStore) => state.blogsFilter.sort,
 };
 

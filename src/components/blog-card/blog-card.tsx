@@ -9,7 +9,8 @@ type BlogCardProps = {
 
 export const BlogCard = ({ blog }: BlogCardProps) => (
     <article className={styles.card}>
-        <Avatar src={blog.imageUrl} alt={blog.name} />
+        {/* The API has no image field yet, so the avatar always renders its placeholder */}
+        <Avatar alt={blog.name} />
         <div className={styles.body}>
             <h3 className={styles.name}>{blog.name}</h3>
             <p className={styles.website}>

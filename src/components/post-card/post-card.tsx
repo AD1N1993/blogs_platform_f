@@ -11,12 +11,9 @@ type PostCardProps = {
 
 export const PostCard = ({ post }: PostCardProps) => (
     <article className={styles.card}>
+        {/* The API has no image field yet, so the preview is always a placeholder */}
         <div className={styles.preview}>
-            {post.imageUrl ? (
-                <img src={post.imageUrl} alt={post.title} className={styles.image} />
-            ) : (
-                <ImagePlaceholderIcon className={styles.placeholder} />
-            )}
+            <ImagePlaceholderIcon className={styles.placeholder} />
         </div>
         <div className={styles.footer}>
             <Avatar size='small' shape='square' />

@@ -1,76 +1,80 @@
 import { HttpResponse, http } from 'msw';
 
-import type { Blog, BlogsSort, Paginated } from '#/types/blog';
-import type { Post, PostsSort } from '#/types/post';
-import { APP_CONFIG, DEFAULT_PAGE_SIZE, POSTS_PAGE_SIZE } from '#/utils/constants';
+import type { Blog } from '#/types/blog';
+import type { Post } from '#/types/post';
+import { APP_CONFIG, DEFAULT_PAGE_SIZE } from '#/utils/constants';
 
 import { BLOGS_FIXTURE } from './fixtures/blogs';
 import { POSTS_FIXTURE } from './fixtures/posts';
 
 const apiPath = (path: string) => `${APP_CONFIG.apiUrl}${path}`;
 
-const byCreatedAtDesc = (a: { createdAt: string }, b: { createdAt: string }) =>
-    b.createdAt.localeCompare(a.createdAt);
+type SortableKey<T> = Extract<keyof T, string>;
 
-const paginate = <T>(items: T[], page: number, size: number): Paginated<T> => ({
-    content: items.slice((page - 1) * size, page * size),
-    page,
-    size,
-    count: items.length,
-});
+/** Mirrors the backend: unknown sortBy values fall back to createdAt. */
+const sortItems = <T extends Blog | Post>(
+    items: T[],
+    sortBy: string,
+    sortDirection: string,
+    allowedFields: SortableKey<T>[],
+): T[] => {
+    const field = (allowedFields as string[]).includes(sortBy)
+        ? (sortBy as SortableKey<T>)
+        : ('createdAt' as SortableKey<T>);
+    const direction = sortDirection === 'asc' ? 1 : -1;
 
-const sortBlogs = (blogs: Blog[], sort: BlogsSort): Blog[] => {
-    const sorted = [...blogs];
-
-    switch (sort) {
-        case 'oldest':
-            return sorted.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-        case 'name':
-            return sorted.sort((a, b) => a.name.localeCompare(b.name));
-        default:
-            return sorted.sort(byCreatedAtDesc);
-    }
+    return [...items].sort((a, b) => String(a[field]).localeCompare(String(b[field])) * direction);
 };
 
-const sortPosts = (posts: Post[], sort: PostsSort): Post[] => {
-    const sorted = [...posts];
+const buildPaginator = <T>(items: T[], pageNumber: number, pageSize: number) => ({
+    pagesCount: Math.ceil(items.length / pageSize),
+    page: pageNumber,
+    pageSize,
+    totalCount: items.length,
+    items: items.slice((pageNumber - 1) * pageSize, pageNumber * pageSize),
+});
 
-    switch (sort) {
-        case 'oldest':
-            return sorted.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-        case 'title':
-            return sorted.sort((a, b) => a.title.localeCompare(b.title));
-        default:
-            return sorted.sort(byCreatedAtDesc);
-    }
+const readQuery = (request: Request) => {
+    const params = new URL(request.url).searchParams;
+
+    return {
+        searchNameTerm: (params.get('searchNameTerm') ?? '').trim().toLowerCase(),
+        sortBy: params.get('sortBy') ?? 'createdAt',
+        sortDirection: params.get('sortDirection') ?? 'desc',
+        pageNumber: Number(params.get('pageNumber') ?? 1),
+        pageSize: Number(params.get('pageSize') ?? DEFAULT_PAGE_SIZE),
+    };
 };
 
 export const handlers = [
     http.get(apiPath('/blogs'), ({ request }) => {
-        const url = new URL(request.url);
-        const search = (url.searchParams.get('search') ?? '').trim().toLowerCase();
-        const sort = (url.searchParams.get('sort') ?? 'newest') as BlogsSort;
-        const page = Number(url.searchParams.get('page') ?? 1);
-        const size = Number(url.searchParams.get('size') ?? DEFAULT_PAGE_SIZE);
+        const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = readQuery(request);
 
         const filtered = BLOGS_FIXTURE.filter(
-            (blog) => !search || blog.name.toLowerCase().includes(search),
+            (blog) => !searchNameTerm || blog.name.toLowerCase().includes(searchNameTerm),
         );
+        const sorted = sortItems(filtered, sortBy, sortDirection, [
+            'name',
+            'description',
+            'websiteUrl',
+            'createdAt',
+        ]);
 
-        return HttpResponse.json(paginate(sortBlogs(filtered, sort), page, size));
+        return HttpResponse.json(buildPaginator(sorted, pageNumber, pageSize));
     }),
 
+    // The API offers no search for posts — only pagination and sorting
     http.get(apiPath('/posts'), ({ request }) => {
-        const url = new URL(request.url);
-        const search = (url.searchParams.get('search') ?? '').trim().toLowerCase();
-        const sort = (url.searchParams.get('sort') ?? 'newest') as PostsSort;
-        const page = Number(url.searchParams.get('page') ?? 1);
-        const size = Number(url.searchParams.get('size') ?? POSTS_PAGE_SIZE);
+        const { sortBy, sortDirection, pageNumber, pageSize } = readQuery(request);
 
-        const filtered = POSTS_FIXTURE.filter(
-            (post) => !search || post.title.toLowerCase().includes(search),
-        );
+        const sorted = sortItems(POSTS_FIXTURE, sortBy, sortDirection, [
+            'title',
+            'shortDescription',
+            'content',
+            'blogName',
+            'createdAt',
+        ]);
 
-        return HttpResponse.json(paginate(sortPosts(filtered, sort), page, size));
+        return HttpResponse.json(buildPaginator(sorted, pageNumber, pageSize));
     }),
 ];

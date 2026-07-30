@@ -24,9 +24,12 @@ export default defineConfig({
     server: {
         port: 8080,
         proxy: {
-            '/api': {
-                target: process.env.VITE_API_TARGET ?? 'http://localhost:3000',
+            // The backend exposes /blogs and /posts at its root and keeps /api for Swagger UI,
+            // so the prefix is stripped before forwarding
+            '/backend-api': {
+                target: process.env.VITE_API_TARGET ?? 'http://localhost:5001',
                 changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/backend-api/, ''),
             },
         },
     },

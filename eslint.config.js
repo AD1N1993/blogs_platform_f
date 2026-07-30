@@ -16,6 +16,8 @@ export default tseslint.config(
             'playwright-report/**',
             'test-results/**',
             'public/**',
+            // Generated from the backend's OpenAPI schema by `yarn api:types`
+            'src/types/generated/**',
         ],
     },
     js.configs.recommended,
@@ -104,12 +106,14 @@ export default tseslint.config(
         },
     },
     {
-        files: ['**/*.js'],
+        files: ['**/*.{js,mjs}'],
         languageOptions: {
             globals: { ...globals.node },
         },
         rules: {
             'import/no-default-export': 'off',
+            // Build scripts report progress to the terminal
+            'no-console': 'off',
         },
     },
     {

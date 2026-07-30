@@ -29,11 +29,37 @@ Two screens are built to the Figma design:
 - **Posts** — a three-column grid of post tiles with preview, title, blog name and date, plus
   sorting and the same "Show more" behaviour.
 
-Data is served by MSW, so the app runs and passes its tests with no backend — swap
-`src/services/*` and `src/mocks/handlers.ts` to point at a real API.
+The app talks to the Express + MongoDB backend (`blog_platform_b`). MSW mirrors that API one to one,
+so `yarn dev:mock`, unit tests and e2e all run with no backend and no database.
 
 Detail pages for a single blog or post are not implemented: the design does not cover them yet, so
-the cards are intentionally not clickable.
+the cards are intentionally not clickable. The API exposes no image field either, so avatars and
+post previews always render their placeholder.
+
+## API types
+
+`src/types/generated/api.ts` is generated from the backend's OpenAPI schema — never edit it by hand.
+`src/types/blog.ts` and `src/types/post.ts` only re-export from it and add the query-filter shapes.
+
+```bash
+yarn api:sync                                  # rebuild the schema, then regenerate the types
+BACKEND_PATH=../path/to/backend yarn api:sync   # if the backend lives elsewhere
+```
+
+The backend assembles its spec at runtime with `swagger-jsdoc` (served at `/api`), so there is no
+committed JSON to fetch: `yarn api:schema` runs the same assembly against a local checkout and writes
+`src/types/generated/openapi.json`, and `yarn api:types` turns that into TypeScript.
+
+Worth knowing about the contract:
+
+- Pagination is `{ pagesCount, page, pageSize, totalCount, items }` — not `content`/`count`.
+- Query parameters are `searchNameTerm`, `sortBy`, `sortDirection`, `pageNumber`, `pageSize`.
+  `pageSize` is capped at **20**, and an empty `searchNameTerm` is rejected, so the hook omits the
+  parameter entirely when the search box is empty.
+- Ordering is a `sortBy` + `sortDirection` pair, while the design shows one dropdown. The presets in
+  `src/utils/sorting.ts` map between them; the store keeps only the preset key.
+- **Posts have no search** — the endpoint supports pagination and sorting only, which matches the
+  design (the Posts screen has no search field).
 
 ## Setup
 
@@ -55,21 +81,28 @@ a major MSW upgrade.
 
 ## Commands
 
-| Command              | What it does                                                               |
-| -------------------- | -------------------------------------------------------------------------- |
-| `yarn dev`           | Dev server on `http://localhost:8080`, `/api` proxied to `VITE_API_TARGET` |
-| `yarn dev:mock`      | Dev server backed by MSW mocks instead of a real backend                   |
-| `yarn build`         | Type check + production build into `build/`                                |
-| `yarn preview`       | Serve the production build locally                                         |
-| `yarn typecheck`     | Type check without emit                                                    |
-| `yarn test`          | Unit tests                                                                 |
-| `yarn test:watch`    | Unit tests in watch mode                                                   |
-| `yarn test:coverage` | Coverage (v8)                                                              |
-| `yarn e2e`           | Playwright; starts the mock dev server itself                              |
-| `yarn e2e:open`      | Playwright UI                                                              |
-| `yarn lint`          | ESLint + Stylelint + format check                                          |
-| `yarn lint:fix`      | Autofix linters and Prettier                                               |
-| `yarn find-deadcode` | knip — unused files, exports and dependencies                              |
+| Command              | What it does                                                        |
+| -------------------- | ------------------------------------------------------------------- |
+| `yarn dev`           | Dev server on `http://localhost:8080`, proxying to the real backend |
+| `yarn dev:mock`      | Dev server backed by MSW mocks instead of a real backend            |
+| `yarn build`         | Type check + production build into `build/`                         |
+| `yarn preview`       | Serve the production build locally                                  |
+| `yarn typecheck`     | Type check without emit                                             |
+| `yarn test`          | Unit tests                                                          |
+| `yarn test:watch`    | Unit tests in watch mode                                            |
+| `yarn test:coverage` | Coverage (v8)                                                       |
+| `yarn e2e`           | Playwright; starts the mock dev server itself                       |
+| `yarn e2e:open`      | Playwright UI                                                       |
+| `yarn lint`          | ESLint + Stylelint + format check                                   |
+| `yarn lint:fix`      | Autofix linters and Prettier                                        |
+| `yarn find-deadcode` | knip — unused files, exports and dependencies                       |
+
+`yarn dev` forwards `/backend-api/*` to `VITE_API_TARGET` (default `http://localhost:5001`) and
+strips the prefix: the backend serves `/blogs` and `/posts` at its root and keeps `/api` for its
+Swagger UI, so the frontend cannot use `/api` as its own prefix.
+
+To run against the real backend, start it first (`node dist/index.js` in the backend checkout, with a
+reachable MongoDB), then `yarn dev`.
 
 Playwright boots the server through its own `webServer` config, so mocks are always on for e2e. To
 run the specs against an app you started yourself, set `E2E_BASE_URL` and `webServer` is skipped.
@@ -105,8 +138,8 @@ src/
 ├── services/            http-client.ts, blogs-api.ts, posts-api.ts, query-client.ts
 ├── store/               index.ts, reducers.ts, slices/, selectors/
 ├── test/                setup.ts, test-utils.tsx (renderWithProviders)
-├── types/               domain types (blog.ts, post.ts, store.ts)
-├── utils/               constants.ts (routes, query keys, config), date.utils.ts
+├── types/               blog.ts, post.ts, store.ts + generated/ (OpenAPI output, do not edit)
+├── utils/               constants.ts (routes, query keys, config), sorting.ts, date.utils.ts
 ├── index.css            design tokens and base styles
 └── main.tsx             entry point
 e2e/                     Playwright specs

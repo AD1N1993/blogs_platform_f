@@ -1,24 +1,17 @@
-export type Blog = {
-    id: string;
-    name: string;
-    websiteUrl: string;
-    description: string;
-    imageUrl: string | null;
-    createdAt: string;
-};
+import type { components } from './generated/api';
 
-export type BlogsSort = 'newest' | 'oldest' | 'name';
+export type Blog = components['schemas']['BlogViewModel'];
+export type BlogsPage = components['schemas']['BlogPaginator'];
+
+/** Sortable blog fields, per the sortBy enum in the API schema. */
+export type BlogSortField = 'name' | 'description' | 'websiteUrl' | 'createdAt';
+
+export type SortDirection = 'asc' | 'desc';
 
 export type BlogsFilter = {
-    search?: string;
-    sort?: BlogsSort;
-    page?: number;
-    size?: number;
-};
-
-export type Paginated<T> = {
-    content: T[];
-    page: number;
-    size: number;
-    count: number;
+    searchNameTerm?: string;
+    sortBy?: BlogSortField;
+    sortDirection?: SortDirection;
+    pageNumber?: number;
+    pageSize?: number;
 };

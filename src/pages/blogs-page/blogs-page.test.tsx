@@ -11,7 +11,7 @@ describe('BlogsPage', () => {
     it('renders the first page of blogs', async () => {
         renderWithProviders(<BlogsPage />);
 
-        expect(await screen.findByText('The best blog in our village')).toBeInTheDocument();
+        expect(await screen.findByText('The best blog')).toBeInTheDocument();
         expect(screen.getByText('Warriors')).toBeInTheDocument();
         // 7 fixtures, DEFAULT_PAGE_SIZE = 5, so the oldest blog is on page 2
         expect(screen.queryByText('Space and beyond')).not.toBeInTheDocument();
@@ -21,20 +21,20 @@ describe('BlogsPage', () => {
         const user = userEvent.setup();
 
         renderWithProviders(<BlogsPage />);
-        await screen.findByText('The best blog in our village');
+        await screen.findByText('The best blog');
 
         await user.click(screen.getByRole('button', { name: /show more/i }));
 
         expect(await screen.findByText('Space and beyond')).toBeInTheDocument();
         // the first page stays visible — this is "load more", not pagination
-        expect(screen.getByText('The best blog in our village')).toBeInTheDocument();
+        expect(screen.getByText('The best blog')).toBeInTheDocument();
     });
 
     it('hides the show more button once everything is loaded', async () => {
         const user = userEvent.setup();
 
         renderWithProviders(<BlogsPage />);
-        await screen.findByText('The best blog in our village');
+        await screen.findByText('The best blog');
 
         await user.click(screen.getByRole('button', { name: /show more/i }));
         await screen.findByText('Space and beyond');
@@ -48,21 +48,46 @@ describe('BlogsPage', () => {
         const user = userEvent.setup();
 
         renderWithProviders(<BlogsPage />);
-        await screen.findByText('The best blog in our village');
+        await screen.findByText('The best blog');
 
         await user.type(screen.getByLabelText('Search'), 'Warriors');
 
         await waitFor(() => {
             expect(screen.getByText('Warriors')).toBeInTheDocument();
-            expect(screen.queryByText('The best blog in our village')).not.toBeInTheDocument();
+            expect(screen.queryByText('The best blog')).not.toBeInTheDocument();
         });
+    });
+
+    it('omits searchNameTerm entirely while the search box is empty', async () => {
+        const requestedUrls: string[] = [];
+
+        server.use(
+            http.get(`${APP_CONFIG.apiUrl}/blogs`, ({ request }) => {
+                requestedUrls.push(request.url);
+
+                return HttpResponse.json({
+                    pagesCount: 1,
+                    page: 1,
+                    pageSize: 5,
+                    totalCount: 0,
+                    items: [],
+                });
+            }),
+        );
+
+        renderWithProviders(<BlogsPage />);
+        await screen.findByText('Nothing found');
+
+        // An empty searchNameTerm would be rejected by the API's validation
+        expect(requestedUrls).not.toHaveLength(0);
+        expect(requestedUrls.every((url) => !url.includes('searchNameTerm'))).toBe(true);
     });
 
     it('reorders blogs when the sorting changes', async () => {
         const user = userEvent.setup();
 
         renderWithProviders(<BlogsPage />);
-        await screen.findByText('The best blog in our village');
+        await screen.findByText('The best blog');
 
         await user.selectOptions(screen.getByLabelText('Blogs sorting'), 'oldest');
 

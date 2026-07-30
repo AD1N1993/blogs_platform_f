@@ -26,6 +26,9 @@
         "format:check": "prettier --check .",
         "lint": "yarn lint:scripts && yarn lint:css && yarn format:check",
         "lint:fix": "eslint . --fix && yarn lint:css --fix && yarn format",
+        "api:schema": "node scripts/sync-api-schema.mjs",
+        "api:types": "openapi-typescript src/types/generated/openapi.json -o src/types/generated/api.ts && prettier --write src/types/generated/api.ts",
+        "api:sync": "yarn api:schema && yarn api:types",
         "find-deadcode": "knip",
         "prepare": "husky"
     },
@@ -69,6 +72,7 @@
         "knip": "5.64.1",
         "lint-staged": "16.2.3",
         "msw": "2.11.3",
+        "openapi-typescript": "^7.13.0",
         "prettier": "3.6.2",
         "stylelint": "16.24.0",
         "stylelint-config-standard": "39.0.0",
