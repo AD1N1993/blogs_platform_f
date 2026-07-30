@@ -8,14 +8,15 @@ export const APP_CONFIG = {
 
 export const APPLICATION_ROUTES = {
     root: '/',
+    blogs: '/blogs',
     posts: '/posts',
-    post: '/posts/:postId',
     notFound: '*',
 } as const;
 
 export const QUERY_KEYS = {
+    blogs: ['blogs'] as const,
     posts: ['posts'] as const,
-    post: (postId: string) => ['posts', postId] as const,
 };
 
-export const DEFAULT_PAGE_SIZE = 2;
+export const DEFAULT_PAGE_SIZE = 5;
+export const POSTS_PAGE_SIZE = 6;

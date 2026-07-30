@@ -1,0 +1,50 @@
+.sidebar {
+    flex: 0 0 var(--layout-sidebar-width);
+    width: var(--layout-sidebar-width);
+    padding-top: 43px;
+    background-color: var(--color-surface);
+}
+
+.list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.item {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    height: 40px;
+    padding: 0 var(--space-m) 0 36px;
+    font-size: 14px;
+    line-height: 24px;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.item:hover {
+    color: var(--color-accent);
+}
+
+.active {
+    font-weight: 500;
+    color: var(--color-accent);
+}
+
+/* Accent indicator on the right edge of the sidebar */
+.active::after {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 2px;
+    height: 24px;
+    content: '';
+    background-color: var(--color-accent);
+    transform: translateY(-50%);
+}
+
+.icon {
+    flex-shrink: 0;
+}

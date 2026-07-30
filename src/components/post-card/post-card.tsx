@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-
+import { Avatar } from '#/components/avatar';
+import { ImagePlaceholderIcon } from '#/components/icons';
 import type { Post } from '#/types/post';
 import { formatDate } from '#/utils/date.utils';
 
@@ -7,36 +7,24 @@ import styles from './post-card.module.css';
 
 type PostCardProps = {
     post: Post;
-    onTagClick?: (tag: string) => void;
 };
 
-export const PostCard = ({ post, onTagClick }: PostCardProps) => (
+export const PostCard = ({ post }: PostCardProps) => (
     <article className={styles.card}>
-        <h2 className={styles.title}>
-            <Link to={`/posts/${post.id}`}>{post.title}</Link>
-        </h2>
-        <p className={styles.meta}>
-            {post.author.name} · {formatDate(post.publishedAt)}
-        </p>
-        <p className={styles.excerpt}>{post.excerpt}</p>
-        {post.tags.length > 0 ? (
-            <ul className={styles.tags}>
-                {post.tags.map((tag) => (
-                    <li key={tag}>
-                        {onTagClick ? (
-                            <button
-                                type='button'
-                                className={styles.tagButton}
-                                onClick={() => onTagClick(tag)}
-                            >
-                                {tag}
-                            </button>
-                        ) : (
-                            <span className={styles.tag}>{tag}</span>
-                        )}
-                    </li>
-                ))}
-            </ul>
-        ) : null}
+        <div className={styles.preview}>
+            {post.imageUrl ? (
+                <img src={post.imageUrl} alt={post.title} className={styles.image} />
+            ) : (
+                <ImagePlaceholderIcon className={styles.placeholder} />
+            )}
+        </div>
+        <div className={styles.footer}>
+            <Avatar size='small' shape='square' />
+            <div className={styles.meta}>
+                <h3 className={styles.title}>{post.title}</h3>
+                <p className={styles.blogName}>{post.blogName}</p>
+                <p className={styles.date}>{formatDate(post.createdAt)}</p>
+            </div>
+        </div>
     </article>
 );

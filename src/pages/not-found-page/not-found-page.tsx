@@ -7,10 +7,10 @@ export const NotFoundPage = () => {
 
     return (
         <div className={styles.container}>
-            <h1 className={styles.title}>Страница не найдена</h1>
-            <p className={styles.text}>Проверьте адрес или вернитесь назад.</p>
+            <h2 className={styles.title}>Page not found</h2>
+            <p className={styles.text}>Check the address or go back.</p>
             <button type='button' className={styles.button} onClick={() => navigate(-1)}>
-                Назад
+                Go back
             </button>
         </div>
     );

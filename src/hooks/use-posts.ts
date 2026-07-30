@@ -1,27 +1,17 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 
-import type { PostCreatePayload, PostsFilter } from '#/types/post';
-import { QUERY_KEYS } from '#/utils/constants';
+import type { PostsFilter } from '#/types/post';
+import { POSTS_PAGE_SIZE, QUERY_KEYS } from '#/utils/constants';
 import { postsApi } from '#services/posts-api';
 
-export const usePostsQuery = (filter: PostsFilter) =>
-    useQuery({
-        queryKey: [...QUERY_KEYS.posts, filter],
-        queryFn: () => postsApi.search(filter),
-    });
+export const usePostsQuery = (filter: PostsFilter) => {
+    const size = filter.size ?? POSTS_PAGE_SIZE;
 
-export const usePostQuery = (postId: string | undefined) =>
-    useQuery({
-        queryKey: QUERY_KEYS.post(postId ?? ''),
-        queryFn: () => postsApi.getById(postId as string),
-        enabled: Boolean(postId),
-    });
-
-export const useCreatePostMutation = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (payload: PostCreatePayload) => postsApi.create(payload),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts }),
+    return useInfiniteQuery({
+        queryKey: [...QUERY_KEYS.posts, { ...filter, size }],
+        queryFn: ({ pageParam }) => postsApi.search({ ...filter, size, page: pageParam }),
+        initialPageParam: 1,
+        getNextPageParam: (lastPage) =>
+            lastPage.page * lastPage.size < lastPage.count ? lastPage.page + 1 : undefined,
     });
 };

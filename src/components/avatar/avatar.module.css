@@ -1,0 +1,42 @@
+.avatar {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+}
+
+.circle {
+    border-radius: var(--radius-round);
+}
+
+.square {
+    border-radius: var(--radius-s);
+}
+
+.large {
+    width: 156px;
+    height: 156px;
+}
+
+.small {
+    width: 24px;
+    height: 24px;
+}
+
+.image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.placeholder {
+    color: var(--color-border);
+}
+
+.small .placeholder {
+    width: 14px;
+    height: 14px;
+}

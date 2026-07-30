@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const BASE_URL = process.env.E2E_BASE_URL ?? 'http://localhost:8080';
+const PORT = 8080;
+const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
 
 export default defineConfig({
     testDir: './e2e',
@@ -14,5 +15,16 @@ export default defineConfig({
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
     },
+    // Playwright starts the mock dev server itself, so no external wrapper is needed
+    // and the --mode flag reaches Vite intact
+    webServer: process.env.E2E_BASE_URL
+        ? undefined
+        : {
+              command: 'yarn vite --mode mock',
+              url: BASE_URL,
+              reuseExistingServer: !process.env.CI,
+              stdout: 'pipe',
+              stderr: 'pipe',
+          },
     projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
 });

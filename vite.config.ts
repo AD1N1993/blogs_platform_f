@@ -33,5 +33,15 @@ export default defineConfig({
     build: {
         outDir: 'build',
         sourcemap: true,
+        rollupOptions: {
+            output: {
+                // Without this, the shared chunk inherits the name of whichever module
+                // happened to pull it in first, which reads as unrelated to its contents
+                chunkFileNames: (chunk) =>
+                    chunk.name.includes('-page')
+                        ? 'assets/[name]-[hash].js'
+                        : 'assets/shared-[hash].js',
+            },
+        },
     },
 });

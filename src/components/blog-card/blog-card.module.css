@@ -1,0 +1,40 @@
+.card {
+    display: flex;
+    gap: var(--space-l);
+    align-items: flex-start;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.body {
+    flex: 1;
+    min-width: 0;
+    padding-top: var(--space-s);
+}
+
+/* H4 / Neutral Dark-60 */
+.name {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 24px;
+    color: var(--color-text);
+}
+
+.website {
+    margin: 0;
+    font-size: 12px;
+    line-height: 20px;
+    color: var(--color-text-secondary);
+}
+
+.description {
+    margin: var(--space-m) 0 0;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 24px;
+    color: var(--color-text);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}

@@ -1,12 +1,12 @@
 import type { ReduxStore } from '#/types/store';
 
-export const notificationsSelectors = {
-    items: (state: ReduxStore) => state.notifications.items,
+export const blogsFilterSelectors = {
+    filter: (state: ReduxStore) => state.blogsFilter,
+    search: (state: ReduxStore) => state.blogsFilter.search,
+    sort: (state: ReduxStore) => state.blogsFilter.sort,
 };
 
 export const postsFilterSelectors = {
     filter: (state: ReduxStore) => state.postsFilter,
-    search: (state: ReduxStore) => state.postsFilter.search,
-    tag: (state: ReduxStore) => state.postsFilter.tag,
-    page: (state: ReduxStore) => state.postsFilter.page,
+    sort: (state: ReduxStore) => state.postsFilter.sort,
 };

@@ -76,6 +76,8 @@ export default tseslint.config(
             'import/order': [
                 'error',
                 {
+                    // No separate 'type' group: type-only imports are sorted by their path
+                    // alongside the value imports from the same module
                     groups: [
                         'builtin',
                         'external',
@@ -84,7 +86,6 @@ export default tseslint.config(
                         'sibling',
                         'index',
                         'object',
-                        'type',
                     ],
                     pathGroups: [
                         { pattern: '#/**', group: 'internal' },

@@ -1,0 +1,20 @@
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    height: var(--layout-header-height);
+    padding: 0 var(--space-l) 0 64px;
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-header);
+}
+
+/* H1 / Neutral Dark+60 */
+.title {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 36px;
+    color: var(--color-text);
+}

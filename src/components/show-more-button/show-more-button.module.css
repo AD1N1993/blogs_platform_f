@@ -1,0 +1,31 @@
+.wrapper {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-l) 0 0;
+}
+
+.button {
+    display: flex;
+    gap: var(--space-s);
+    align-items: center;
+    height: 32px;
+    padding: 0 var(--space-m);
+    color: var(--color-text);
+    cursor: pointer;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-s);
+}
+
+.button:disabled {
+    cursor: progress;
+    opacity: 0.6;
+}
+
+.button:hover:not(:disabled) {
+    border-color: var(--color-text-secondary);
+}
+
+.icon {
+    flex-shrink: 0;
+}

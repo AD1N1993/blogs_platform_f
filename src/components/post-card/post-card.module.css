@@ -1,49 +1,55 @@
 .card {
-    padding: var(--space-m);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: hidden;
     background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-l);
 }
 
-.title {
-    margin: 0 0 var(--space-xs);
-    font-size: 20px;
+.preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 180px;
+    background-color: var(--color-preview);
+}
+
+.image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.placeholder {
+    color: var(--color-border);
+}
+
+.footer {
+    display: flex;
+    gap: var(--space-s);
+    align-items: flex-start;
+    padding: 12px;
 }
 
 .meta {
-    margin: 0 0 var(--space-s);
-    font-size: 14px;
-    color: var(--color-text-secondary);
+    min-width: 0;
 }
 
-.excerpt {
+.title {
     margin: 0;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+    color: var(--color-text);
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs);
-    padding: 0;
-    margin: var(--space-m) 0 0;
-    list-style: none;
-}
-
-.tag,
-.tagButton {
-    display: inline-block;
-    padding: 2px var(--space-s);
-    font-size: 13px;
+.blogName,
+.date {
+    margin: 0;
+    font-size: 12px;
+    line-height: 18px;
     color: var(--color-text-secondary);
-    background-color: var(--color-bg-muted);
-    border: none;
-    border-radius: var(--radius-s);
-}
-
-.tagButton {
-    cursor: pointer;
-}
-
-.tagButton:hover {
-    color: var(--color-accent);
 }

@@ -11,9 +11,8 @@ CSS modules and hand-rolled components — no external UI kit.
 | UI              | React 19, CSS modules + design tokens in `src/index.css` |
 | Routing         | react-router-dom 7                                       |
 | Server state    | TanStack Query 5 (+ devtools in dev)                     |
-| Client state    | Redux Toolkit 2 (filters, notifications)                 |
+| Client state    | Redux Toolkit 2 (search and sorting filters)             |
 | HTTP            | axios + a single `ApiError`                              |
-| Forms           | react-hook-form + zod (`@hookform/resolvers`)            |
 | Unit tests      | Vitest 4 + Testing Library + MSW                         |
 | E2E             | Playwright                                               |
 | Code quality    | ESLint 9 (flat), Prettier, Stylelint, knip               |
@@ -22,10 +21,19 @@ CSS modules and hand-rolled components — no external UI kit.
 
 ### What already works
 
-A demo "posts" domain wires every layer together: a list with debounced search, tag filtering,
-pagination, a post page, a publish form validated with zod, and toast notifications. Data is served
-by MSW, so the starter runs and passes its tests with no backend — replace `src/services/*` and
-`src/mocks/handlers.ts` and the demo domain can be dropped entirely.
+Two screens are built to the Figma design:
+
+- **Blogs** — a list of blog rows with a 156px avatar, website link and clamped description,
+  debounced search, sorting, and a "Show more" button that **appends** the next page to the same
+  list (`useInfiniteQuery`).
+- **Posts** — a three-column grid of post tiles with preview, title, blog name and date, plus
+  sorting and the same "Show more" behaviour.
+
+Data is served by MSW, so the app runs and passes its tests with no backend — swap
+`src/services/*` and `src/mocks/handlers.ts` to point at a real API.
+
+Detail pages for a single blog or post are not implemented: the design does not cover them yet, so
+the cards are intentionally not clickable.
 
 ## Setup
 
@@ -47,52 +55,85 @@ a major MSW upgrade.
 
 ## Commands
 
-| Command                 | What it does                                                               |
-| ----------------------- | -------------------------------------------------------------------------- |
-| `yarn dev`              | Dev server on `http://localhost:8080`, `/api` proxied to `VITE_API_TARGET` |
-| `yarn dev:mock`         | Dev server backed by MSW mocks instead of a real backend                   |
-| `yarn build`            | Type check + production build into `build/`                                |
-| `yarn preview`          | Serve the production build locally                                         |
-| `yarn typecheck`        | Type check without emit                                                    |
-| `yarn test`             | Unit tests                                                                 |
-| `yarn test:watch`       | Unit tests in watch mode                                                   |
-| `yarn test:coverage`    | Coverage (v8)                                                              |
-| `yarn e2e:run`          | Playwright against an already running app                                  |
-| `yarn e2e:open`         | Playwright UI                                                              |
-| `yarn integration-test` | Starts `dev:mock` and runs Playwright against it                           |
-| `yarn lint`             | ESLint + Stylelint + format check                                          |
-| `yarn lint:fix`         | Autofix linters and Prettier                                               |
-| `yarn find-deadcode`    | knip — unused files, exports and dependencies                              |
+| Command              | What it does                                                               |
+| -------------------- | -------------------------------------------------------------------------- |
+| `yarn dev`           | Dev server on `http://localhost:8080`, `/api` proxied to `VITE_API_TARGET` |
+| `yarn dev:mock`      | Dev server backed by MSW mocks instead of a real backend                   |
+| `yarn build`         | Type check + production build into `build/`                                |
+| `yarn preview`       | Serve the production build locally                                         |
+| `yarn typecheck`     | Type check without emit                                                    |
+| `yarn test`          | Unit tests                                                                 |
+| `yarn test:watch`    | Unit tests in watch mode                                                   |
+| `yarn test:coverage` | Coverage (v8)                                                              |
+| `yarn e2e`           | Playwright; starts the mock dev server itself                              |
+| `yarn e2e:open`      | Playwright UI                                                              |
+| `yarn lint`          | ESLint + Stylelint + format check                                          |
+| `yarn lint:fix`      | Autofix linters and Prettier                                               |
+| `yarn find-deadcode` | knip — unused files, exports and dependencies                              |
 
-> `yarn integration-test` is currently broken after the migration from npm to Yarn: the
-> `start-server-and-test` wrapper exits with code 1 and swallows Playwright's output. The specs
-> themselves pass — run `yarn dev:mock` in one terminal and `yarn e2e:run` in another.
+Playwright boots the server through its own `webServer` config, so mocks are always on for e2e. To
+run the specs against an app you started yourself, set `E2E_BASE_URL` and `webServer` is skipped.
+
+The mock flag lives in `.env.mock` and is picked up by `--mode mock`. Passing `VITE_USE_MOCK` as a
+shell variable does **not** work: Vite reads client env from `.env` files, not from the process
+environment.
 
 ## Layout
 
 ```
 src/
-├── components/        UI components: <kebab-case>/<kebab-case>.tsx + .module.css + index.ts
-│   ├── app/           application routing
-│   ├── root/          provider wrappers around App
+├── components/          UI components: <kebab-case>/<kebab-case>.tsx + .module.css + index.ts
+│   ├── app/             routing
+│   ├── root/            provider wrappers around App
+│   ├── app-layout/      header + sidebar + content frame
+│   ├── app-header/      "Blogger Platform" bar
+│   ├── app-sidebar/     Blogs / Posts navigation with the accent indicator
+│   ├── page-header/     section heading
+│   ├── toolbar/         search + sorting row
+│   ├── search-input/
+│   ├── sort-select/     generic over the sort value type
+│   ├── avatar/          image placeholder, circle 156px or square 24px
+│   ├── blog-card/       blog row on the Blogs page
+│   ├── post-card/       post tile on the Posts page
+│   ├── show-more-button/
+│   ├── icons/           inline SVG icons
 │   ├── error-boundary/
-│   ├── notifications/ toasts driven by a Redux slice
-│   ├── page-layout/   header + main container
-│   ├── post-card/
-│   ├── post-form/     publish form (react-hook-form + zod)
 │   └── spinner/
-├── hooks/             app.ts (typed useAppDispatch/useAppSelector), use-posts.ts, use-debounce.ts
-├── mocks/             MSW: handlers.ts, browser.ts, server.ts, fixtures/
-├── pages/             pages (posts-page, post-page, not-found-page)
-├── services/          http-client.ts, posts-api.ts, query-client.ts
-├── store/             index.ts, reducers.ts, slices/, selectors/
-├── test/              setup.ts, test-utils.tsx (renderWithProviders)
-├── types/             domain types (post.ts, notifications.ts, store.ts)
-├── utils/             constants.ts (routes, query keys, config), date.utils.ts
-├── index.css          design tokens and base styles
-└── main.tsx           entry point
-e2e/                   Playwright specs
+├── hooks/               app.ts (typed dispatch/selector), use-blogs.ts, use-posts.ts, use-debounce.ts
+├── mocks/               MSW: handlers.ts, browser.ts, server.ts, fixtures/
+├── pages/               blogs-page, posts-page, not-found-page
+├── services/            http-client.ts, blogs-api.ts, posts-api.ts, query-client.ts
+├── store/               index.ts, reducers.ts, slices/, selectors/
+├── test/                setup.ts, test-utils.tsx (renderWithProviders)
+├── types/               domain types (blog.ts, post.ts, store.ts)
+├── utils/               constants.ts (routes, query keys, config), date.utils.ts
+├── index.css            design tokens and base styles
+└── main.tsx             entry point
+e2e/                     Playwright specs
 ```
+
+## Design tokens
+
+Values taken from Figma and declared in `src/index.css`:
+
+| Token                    | Value                                          |
+| ------------------------ | ---------------------------------------------- |
+| `--color-surface`        | `#FCFBFB` — header and sidebar                 |
+| `--color-bg-muted`       | `#F7F6F6` — content background                 |
+| `--color-border`         | `#DEDBDC`                                      |
+| `--color-text`           | `#1A1718`                                      |
+| `--color-accent`         | `#F8346B` — active menu item and its indicator |
+| `--shadow-header`        | `0 1 2 /10%` + `0 5 20 /3%` of `#1D2126`       |
+| `--layout-header-height` | `60px`                                         |
+| `--layout-sidebar-width` | `252px`                                        |
+| `--layout-content-width` | `940px`                                        |
+
+Type scale follows the design: H1 26/36 semibold (app title), H4 18/24 semibold (section and card
+headings), body 14/24 regular.
+
+The design specifies **Inter**, but no web font is bundled yet — `--font-family` lists `inter` first
+and falls back to the system stack, so right now the app renders in the system font. Add the font
+(self-hosted `@font-face` or a `<link>` in `index.html`) to match the mockups exactly.
 
 ## Conventions
 
@@ -113,10 +154,10 @@ e2e/                   Playwright specs
 - **Commits**: conventional commits, enforced by `commitlint` on `commit-msg`; `pre-commit` runs
   `lint-staged` and `typecheck`.
 
-`DEFAULT_PAGE_SIZE` is deliberately `2` so pagination is visible across the three demo posts. Raise
-it in `src/utils/constants.ts` for a real API.
+`DEFAULT_PAGE_SIZE` (5 blogs) and `POSTS_PAGE_SIZE` (6 posts, one full grid) are set in
+`src/utils/constants.ts` so that "Show more" is reachable with the current fixtures.
 
-Note that user-facing copy and test descriptions are in Russian; comments and docs are in English.
+Everything — UI copy, comments, tests and docs — is in English, matching the design.
 
 ## Known audit findings
 
