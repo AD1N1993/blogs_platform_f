@@ -1,0 +1,22 @@
+import type { KnipConfig } from 'knip';
+
+const config: KnipConfig = {
+    entry: [
+        'src/main.tsx',
+        'src/mocks/browser.ts',
+        'src/**/*.{test,spec}.{ts,tsx}',
+        'e2e/**/*.spec.ts',
+        '*.config.{ts,js}',
+    ],
+    project: ['src/**/*.{ts,tsx}', 'e2e/**/*.ts'],
+    // Without these, knip treats the '#' aliases as Node subpath imports and reports them unresolved
+    paths: {
+        '#/*': ['src/*'],
+        '#slices/*': ['src/store/slices/*'],
+        '#selectors': ['src/store/selectors/index.ts'],
+        '#services/*': ['src/services/*'],
+    },
+    ignoreExportsUsedInFile: true,
+};
+
+export default config;

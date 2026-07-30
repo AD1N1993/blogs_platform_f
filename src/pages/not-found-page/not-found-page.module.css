@@ -1,0 +1,27 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    text-align: center;
+}
+
+.title {
+    margin: 0 0 var(--space-s);
+    font-size: 28px;
+}
+
+.text {
+    margin: 0 0 var(--space-l);
+    color: var(--color-text-secondary);
+}
+
+.button {
+    padding: var(--space-s) var(--space-l);
+    color: #fff;
+    cursor: pointer;
+    background-color: var(--color-accent);
+    border: none;
+    border-radius: var(--radius-m);
+}
