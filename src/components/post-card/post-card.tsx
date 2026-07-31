@@ -1,6 +1,9 @@
+import { Link } from 'react-router-dom';
+
 import { Avatar } from '#/components/avatar';
 import { ImagePlaceholderIcon } from '#/components/icons';
 import type { Post } from '#/types/post';
+import { buildPostRoute } from '#/utils/constants';
 import { formatDate } from '#/utils/date.utils';
 
 import styles from './post-card.module.css';
@@ -24,7 +27,11 @@ export const PostCard = ({ post, variant = 'default' }: PostCardProps) => (
         <div className={styles.footer}>
             {variant === 'default' ? <Avatar size='small' shape='square' /> : null}
             <div className={styles.meta}>
-                <h3 className={styles.title}>{post.title}</h3>
+                <h3 className={styles.title}>
+                    <Link to={buildPostRoute(post.id)} className={styles.link}>
+                        {post.title}
+                    </Link>
+                </h3>
                 {variant === 'default' ? (
                     <p className={styles.blogName}>{post.blogName}</p>
                 ) : (

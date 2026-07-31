@@ -15,15 +15,18 @@ export const APPLICATION_ROUTES = {
     blogs: '/blogs',
     blog: '/blogs/:blogId',
     posts: '/posts',
+    post: '/posts/:postId',
     notFound: '*',
 } as const;
 
 export const buildBlogRoute = (blogId: string) => `${APPLICATION_ROUTES.blogs}/${blogId}`;
+export const buildPostRoute = (postId: string) => `${APPLICATION_ROUTES.posts}/${postId}`;
 
 export const QUERY_KEYS = {
     blogs: ['blogs'] as const,
     blog: (blogId: string) => ['blogs', blogId] as const,
     posts: ['posts'] as const,
+    post: (postId: string) => ['posts', postId] as const,
     blogPosts: (blogId: string) => ['blogs', blogId, 'posts'] as const,
 };
 

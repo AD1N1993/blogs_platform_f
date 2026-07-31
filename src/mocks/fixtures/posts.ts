@@ -1,7 +1,11 @@
 import type { Post } from '#/types/post';
 
-const CONTENT =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
+/** Blank lines separate paragraphs, which is how the post page renders the body. */
+const CONTENT = [
+    'Lorem ipsum dolor sit amet consectetur adipiscing elit, magna felis vestibulum metus aptent velit, tempor posuere natoque habitasse phasellus dignissim.',
+    'Nec libero purus etiam venenatis velit cras nascetur euismod ornare sodales, ex ut augue sed vestibulum molestie dis quisque laoreet, tempor ullamcorper mus odio nostra est dolor magna justo.',
+    'Lorem ipsum dolor sit amet consectetur adipiscing elit, magna felis vestibulum metus aptent velit, tempor posuere natoque habitasse phasellus dignissim.',
+].join('\n\n');
 
 export const POSTS_FIXTURE: Post[] = [
     {

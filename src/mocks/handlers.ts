@@ -78,6 +78,12 @@ export const handlers = [
         return HttpResponse.json(buildPaginator(sorted, pageNumber, pageSize));
     }),
 
+    http.get(apiPath('/posts/:postId'), ({ params }) => {
+        const post = POSTS_FIXTURE.find((item) => item.id === params.postId);
+
+        return post ? HttpResponse.json(post) : new HttpResponse(null, { status: 404 });
+    }),
+
     http.get(apiPath('/blogs/:blogId'), ({ params }) => {
         const blog = BLOGS_FIXTURE.find((item) => item.id === params.blogId);
 

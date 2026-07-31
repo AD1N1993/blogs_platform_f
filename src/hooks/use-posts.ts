@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import { POSTS_PAGE_SIZE, QUERY_KEYS } from '#/utils/constants';
 import { POST_SORT_PRESETS } from '#/utils/sorting';
@@ -19,6 +19,13 @@ export const usePostsQuery = ({ sort }: PostsFilterState) => {
         getNextPageParam,
     });
 };
+
+export const usePostQuery = (postId: string | undefined) =>
+    useQuery({
+        queryKey: QUERY_KEYS.post(postId ?? ''),
+        queryFn: () => postsApi.getById(postId as string),
+        enabled: Boolean(postId),
+    });
 
 /** Posts of a single blog. Sorting mirrors the posts page; the API offers no search here. */
 export const useBlogPostsQuery = (blogId: string | undefined, sort: PostsFilterState['sort']) => {
