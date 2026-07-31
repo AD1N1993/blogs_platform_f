@@ -13,13 +13,18 @@ export const APP_CONFIG = {
 export const APPLICATION_ROUTES = {
     root: '/',
     blogs: '/blogs',
+    blog: '/blogs/:blogId',
     posts: '/posts',
     notFound: '*',
 } as const;
 
+export const buildBlogRoute = (blogId: string) => `${APPLICATION_ROUTES.blogs}/${blogId}`;
+
 export const QUERY_KEYS = {
     blogs: ['blogs'] as const,
+    blog: (blogId: string) => ['blogs', blogId] as const,
     posts: ['posts'] as const,
+    blogPosts: (blogId: string) => ['blogs', blogId, 'posts'] as const,
 };
 
 /** The API caps pageSize at 20. */

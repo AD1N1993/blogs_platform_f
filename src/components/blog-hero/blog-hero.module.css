@@ -1,0 +1,15 @@
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* 1028 x 312 in the design — kept proportional so it scales with the content column */
+    aspect-ratio: 1028 / 312;
+    background-color: var(--color-bg);
+}
+
+.placeholder {
+    width: 40px;
+    height: 40px;
+    color: var(--color-border);
+}

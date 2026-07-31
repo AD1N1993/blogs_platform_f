@@ -1,0 +1,67 @@
+.summary {
+    display: flex;
+    gap: var(--space-l);
+    align-items: flex-start;
+    padding: var(--space-l);
+    background-color: var(--color-bg-muted);
+}
+
+/* The avatar overlaps the hero above it, as in the design; the ring separates it from both */
+.avatar {
+    flex-shrink: 0;
+    margin-top: -78px;
+    background-color: var(--color-bg);
+    box-shadow: 0 0 0 4px var(--color-bg-muted);
+}
+
+.body {
+    flex: 1;
+    min-width: 0;
+}
+
+/* H3 / Neutral Dark-60 */
+.name {
+    margin: 0 0 var(--space-s);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 28px;
+    color: var(--color-text);
+}
+
+/*
+ * Label and value share a row. The trailing 1fr column absorbs the leftover width so the
+ * value sits next to its label instead of stretching to the far edge.
+ */
+.meta {
+    display: grid;
+    grid-template-columns: auto minmax(0, max-content) 1fr;
+    gap: 0 var(--space-xs);
+    margin: 0 0 var(--space-m);
+    font-size: 12px;
+    line-height: 20px;
+    color: var(--color-text-secondary);
+}
+
+.term {
+    grid-column: 1;
+    margin: 0;
+}
+
+.value {
+    grid-column: 2;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    font-weight: 600;
+    color: var(--color-text);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.value a {
+    font-weight: 400;
+}
+
+.description {
+    margin: 0;
+}

@@ -77,4 +77,29 @@ export const handlers = [
 
         return HttpResponse.json(buildPaginator(sorted, pageNumber, pageSize));
     }),
+
+    http.get(apiPath('/blogs/:blogId'), ({ params }) => {
+        const blog = BLOGS_FIXTURE.find((item) => item.id === params.blogId);
+
+        return blog ? HttpResponse.json(blog) : new HttpResponse(null, { status: 404 });
+    }),
+
+    http.get(apiPath('/blogs/:blogId/posts'), ({ params, request }) => {
+        const { sortBy, sortDirection, pageNumber, pageSize } = readQuery(request);
+
+        if (!BLOGS_FIXTURE.some((blog) => blog.id === params.blogId)) {
+            return new HttpResponse(null, { status: 404 });
+        }
+
+        const blogPosts = POSTS_FIXTURE.filter((post) => post.blogId === params.blogId);
+        const sorted = sortItems(blogPosts, sortBy, sortDirection, [
+            'title',
+            'shortDescription',
+            'content',
+            'blogName',
+            'createdAt',
+        ]);
+
+        return HttpResponse.json(buildPaginator(sorted, pageNumber, pageSize));
+    }),
 ];

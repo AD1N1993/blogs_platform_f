@@ -1,1 +1,9 @@
-export { ChevronDownIcon, GridIcon, ImagePlaceholderIcon, ListIcon, SearchIcon } from './icons';
+export {
+    ArrowLeftIcon,
+    ChevronDownIcon,
+    ChevronRightIcon,
+    GridIcon,
+    ImagePlaceholderIcon,
+    ListIcon,
+    SearchIcon,
+} from './icons';

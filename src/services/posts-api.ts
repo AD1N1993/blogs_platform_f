@@ -8,4 +8,12 @@ export const postsApi = {
 
         return data;
     },
+
+    searchByBlog: async (blogId: string, filter: PostsFilter = {}): Promise<PostsPage> => {
+        const { data } = await httpClient.get<PostsPage>(`/blogs/${blogId}/posts`, {
+            params: filter,
+        });
+
+        return data;
+    },
 };

@@ -21,6 +21,15 @@
     color: var(--color-text);
 }
 
+.link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
 .website {
     margin: 0;
     font-size: 12px;

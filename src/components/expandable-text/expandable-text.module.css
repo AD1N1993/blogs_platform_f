@@ -1,0 +1,39 @@
+.text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 24px;
+    color: var(--color-text);
+}
+
+.clamped {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--expandable-lines, 2);
+}
+
+.toggle {
+    display: flex;
+    gap: var(--space-xs);
+    align-items: center;
+    padding: 0;
+    margin: var(--space-s) auto 0;
+    font-size: 12px;
+    line-height: 20px;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.toggle:hover {
+    color: var(--color-text);
+}
+
+.icon {
+    transition: transform 0.15s ease;
+}
+
+.up {
+    transform: rotate(180deg);
+}

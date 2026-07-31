@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import { DEFAULT_PAGE_SIZE, QUERY_KEYS } from '#/utils/constants';
 import { BLOG_SORT_PRESETS } from '#/utils/sorting';
@@ -23,3 +23,10 @@ export const useBlogsQuery = ({ searchNameTerm, sort }: BlogsFilterState) => {
             lastPage.page < lastPage.pagesCount ? lastPage.page + 1 : undefined,
     });
 };
+
+export const useBlogQuery = (blogId: string | undefined) =>
+    useQuery({
+        queryKey: QUERY_KEYS.blog(blogId ?? ''),
+        queryFn: () => blogsApi.getById(blogId as string),
+        enabled: Boolean(blogId),
+    });

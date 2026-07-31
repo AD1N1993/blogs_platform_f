@@ -1,5 +1,8 @@
+import { Link } from 'react-router-dom';
+
 import { Avatar } from '#/components/avatar';
 import type { Blog } from '#/types/blog';
+import { buildBlogRoute } from '#/utils/constants';
 
 import styles from './blog-card.module.css';
 
@@ -12,7 +15,11 @@ export const BlogCard = ({ blog }: BlogCardProps) => (
         {/* The API has no image field yet, so the avatar always renders its placeholder */}
         <Avatar alt={blog.name} />
         <div className={styles.body}>
-            <h3 className={styles.name}>{blog.name}</h3>
+            <h3 className={styles.name}>
+                <Link to={buildBlogRoute(blog.id)} className={styles.link}>
+                    {blog.name}
+                </Link>
+            </h3>
             <p className={styles.website}>
                 Website:{' '}
                 <a href={blog.websiteUrl} target='_blank' rel='noreferrer noopener'>

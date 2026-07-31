@@ -8,6 +8,9 @@ import { APPLICATION_ROUTES } from '#/utils/constants';
 const BlogsPage = lazy(() =>
     import('#/pages/blogs-page').then((module) => ({ default: module.BlogsPage })),
 );
+const BlogPage = lazy(() =>
+    import('#/pages/blog-page').then((module) => ({ default: module.BlogPage })),
+);
 const PostsPage = lazy(() =>
     import('#/pages/posts-page').then((module) => ({ default: module.PostsPage })),
 );
@@ -24,6 +27,7 @@ export const App = () => (
                     element={<Navigate to={APPLICATION_ROUTES.blogs} replace />}
                 />
                 <Route path={APPLICATION_ROUTES.blogs} element={<BlogsPage />} />
+                <Route path={APPLICATION_ROUTES.blog} element={<BlogPage />} />
                 <Route path={APPLICATION_ROUTES.posts} element={<PostsPage />} />
                 <Route path={APPLICATION_ROUTES.notFound} element={<NotFoundPage />} />
             </Routes>

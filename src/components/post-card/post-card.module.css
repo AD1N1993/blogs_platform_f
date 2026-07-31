@@ -53,3 +53,15 @@
     line-height: 18px;
     color: var(--color-text-secondary);
 }
+
+/* Compact variant: the description wraps to two lines instead of being ellipsised */
+.description {
+    display: -webkit-box;
+    margin: var(--space-xs) 0;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--color-text-secondary);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
