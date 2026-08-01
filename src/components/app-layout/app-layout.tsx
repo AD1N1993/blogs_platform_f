@@ -1,20 +1,18 @@
-import type { ReactNode } from 'react';
+import { Outlet } from 'react-router-dom';
 
 import { AppHeader } from '#/components/app-header';
 import { AppSidebar } from '#/components/app-sidebar';
 
 import styles from './app-layout.module.css';
 
-type AppLayoutProps = {
-    children: ReactNode;
-};
-
-export const AppLayout = ({ children }: AppLayoutProps) => (
+export const AppLayout = () => (
     <div className={styles.layout}>
         <AppHeader />
         <div className={styles.body}>
             <AppSidebar />
-            <main className={styles.content}>{children}</main>
+            <main className={styles.content}>
+                <Outlet />
+            </main>
         </div>
     </div>
 );

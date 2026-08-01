@@ -1,0 +1,30 @@
+.wrapper {
+    display: flex;
+    gap: var(--space-xl);
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 1000px;
+}
+
+.card {
+    box-sizing: border-box;
+    width: 378px;
+    flex-shrink: 0;
+    padding: var(--space-xl) var(--space-l);
+    background-color: var(--color-bg);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-header);
+}
+
+.illustration {
+    flex: 1;
+    max-width: 480px;
+    height: auto;
+}
+
+@media (width <= 900px) {
+    .illustration {
+        display: none;
+    }
+}

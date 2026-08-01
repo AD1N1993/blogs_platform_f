@@ -2,9 +2,16 @@ import axios, { type AxiosError, type AxiosInstance } from 'axios';
 
 import { APP_CONFIG } from '#/utils/constants';
 
+export type ValidationError = {
+    field: string;
+    message: string;
+};
+
 export type ApiErrorPayload = {
     errorCode?: string;
     message?: string;
+    /** The shape the real backend actually returns (see ValidationErrorResponse in openapi.json). */
+    errorsMessages?: ValidationError[];
 };
 
 export class ApiError extends Error {
@@ -12,11 +19,19 @@ export class ApiError extends Error {
 
     public readonly errorCode?: string;
 
-    constructor(message: string, status?: number, errorCode?: string) {
+    public readonly errorsMessages: ValidationError[];
+
+    constructor(
+        message: string,
+        status?: number,
+        errorCode?: string,
+        errorsMessages: ValidationError[] = [],
+    ) {
         super(message);
         this.name = 'ApiError';
         this.status = status;
         this.errorCode = errorCode;
+        this.errorsMessages = errorsMessages;
     }
 }
 
@@ -32,9 +47,13 @@ httpClient.interceptors.response.use(
         const payload = error.response?.data;
 
         throw new ApiError(
-            payload?.message ?? error.message ?? 'Неизвестная ошибка',
+            payload?.message ??
+                payload?.errorsMessages?.[0]?.message ??
+                error.message ??
+                'Неизвестная ошибка',
             error.response?.status,
             payload?.errorCode,
+            payload?.errorsMessages,
         );
     },
 );

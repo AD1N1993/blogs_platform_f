@@ -1,0 +1,42 @@
+.title {
+    margin: 0 0 var(--space-m);
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--color-text);
+}
+
+.message {
+    margin: 0 0 var(--space-l);
+    text-align: center;
+    color: var(--color-text-secondary);
+}
+
+.success {
+    margin: 0 0 var(--space-m);
+    font-size: 12px;
+    text-align: center;
+    color: var(--color-text);
+}
+
+.error {
+    margin: 0 0 var(--space-m);
+    font-size: 12px;
+    text-align: center;
+    color: var(--color-negative);
+}
+
+.button {
+    width: 100%;
+    height: 40px;
+    color: var(--color-bg);
+    cursor: pointer;
+    background-color: var(--color-accent);
+    border: none;
+    border-radius: var(--radius-s);
+}
+
+.button:disabled {
+    cursor: progress;
+    opacity: 0.6;
+}

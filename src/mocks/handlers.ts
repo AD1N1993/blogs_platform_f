@@ -1,9 +1,11 @@
 import { HttpResponse, http } from 'msw';
 
+import type { ConfirmEmailInput, LoginInput, ResendEmailInput, SignUpInput } from '#/types/auth';
 import type { Blog } from '#/types/blog';
 import type { Post } from '#/types/post';
 import { APP_CONFIG, DEFAULT_PAGE_SIZE } from '#/utils/constants';
 
+import { pendingRegistrationsStore } from './fixtures/auth';
 import { BLOGS_FIXTURE } from './fixtures/blogs';
 import { POSTS_FIXTURE } from './fixtures/posts';
 
@@ -107,5 +109,93 @@ export const handlers = [
         ]);
 
         return HttpResponse.json(buildPaginator(sorted, pageNumber, pageSize));
+    }),
+
+    // The backend has no registration flow yet — these three stand in for it until it ships.
+    http.post(apiPath('/auth/registration'), async ({ request }) => {
+        const { login, email, password } = (await request.json()) as SignUpInput;
+
+        if (pendingRegistrationsStore.findByEmail(email)) {
+            return HttpResponse.json(
+                { errorsMessages: [{ field: 'email', message: 'Email already registered' }] },
+                { status: 400 },
+            );
+        }
+
+        pendingRegistrationsStore.add({
+            login,
+            email,
+            password,
+            // Lets the expired-link screen be demoed on demand, without waiting out a real TTL.
+            confirmationCode: `valid-${email}`,
+            isExpired: email.includes('expired'),
+            isConfirmed: false,
+        });
+
+        return new HttpResponse(null, { status: 204 });
+    }),
+
+    http.post(apiPath('/auth/registration-confirmation'), async ({ request }) => {
+        const { code } = (await request.json()) as ConfirmEmailInput;
+
+        const registration = pendingRegistrationsStore.findByConfirmationCode(code);
+
+        if (!registration) {
+            return HttpResponse.json(
+                { errorsMessages: [{ field: 'code', message: 'Confirmation code is incorrect' }] },
+                { status: 400 },
+            );
+        }
+
+        if (registration.isExpired) {
+            return HttpResponse.json(
+                {
+                    errorCode: 'CODE_EXPIRED',
+                    errorsMessages: [{ field: 'code', message: 'Confirmation code has expired' }],
+                },
+                { status: 400 },
+            );
+        }
+
+        // Confirming an already-confirmed code is a no-op success, not an error — React 19
+        // StrictMode double-invokes effects in dev, so this request can legitimately arrive twice.
+        if (!registration.isConfirmed) {
+            pendingRegistrationsStore.update(registration.email, { isConfirmed: true });
+        }
+
+        return new HttpResponse(null, { status: 204 });
+    }),
+
+    http.post(apiPath('/auth/registration-email-resending'), async ({ request }) => {
+        const { email } = (await request.json()) as ResendEmailInput;
+
+        const registration = pendingRegistrationsStore.findByEmail(email);
+
+        if (!registration || registration.isConfirmed) {
+            return HttpResponse.json(
+                { errorsMessages: [{ field: 'email', message: 'Email is incorrect' }] },
+                { status: 400 },
+            );
+        }
+
+        pendingRegistrationsStore.update(email, {
+            confirmationCode: `valid-${email}`,
+            isExpired: false,
+        });
+
+        return new HttpResponse(null, { status: 204 });
+    }),
+
+    // The real /auth/login only checks credentials (204/401) — mirror that here.
+    http.post(apiPath('/auth/login'), async ({ request }) => {
+        const { loginOrEmail, password } = (await request.json()) as LoginInput;
+
+        const registration = pendingRegistrationsStore.findByLoginOrEmail(loginOrEmail);
+
+        if (!registration?.isConfirmed || registration.password !== password) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        return new HttpResponse(null, { status: 204 });
     }),
 ];

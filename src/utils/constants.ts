@@ -24,6 +24,10 @@ export const APPLICATION_ROUTES = {
     posts: '/posts',
     post: '/posts/:postId',
     users: '/users',
+    signUp: '/sign-up',
+    signIn: '/sign-in',
+    emailConfirmation: '/email-confirmation',
+    emailConfirmationExpired: '/email-confirmation/expired',
     notFound: '*',
 } as const;
 
