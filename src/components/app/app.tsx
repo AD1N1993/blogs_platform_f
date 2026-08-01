@@ -17,6 +17,9 @@ const PostsPage = lazy(() =>
 const PostPage = lazy(() =>
     import('#/pages/post-page').then((module) => ({ default: module.PostPage })),
 );
+const UsersPage = lazy(() =>
+    import('#/pages/users-page').then((module) => ({ default: module.UsersPage })),
+);
 const NotFoundPage = lazy(() =>
     import('#/pages/not-found-page').then((module) => ({ default: module.NotFoundPage })),
 );
@@ -33,8 +36,9 @@ export const App = () => (
                 <Route path={APPLICATION_ROUTES.blog} element={<BlogPage />} />
                 <Route path={APPLICATION_ROUTES.posts} element={<PostsPage />} />
                 <Route path={APPLICATION_ROUTES.post} element={<PostPage />} />
+                <Route path={APPLICATION_ROUTES.users} element={<UsersPage />} />
                 <Route path={APPLICATION_ROUTES.notFound} element={<NotFoundPage />} />
             </Routes>
         </Suspense>
-    </AppLayout> 
+    </AppLayout>
 );

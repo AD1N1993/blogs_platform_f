@@ -2,7 +2,7 @@ import cn from 'classnames';
 import type { ComponentType } from 'react';
 import { NavLink } from 'react-router-dom';
 
-import { GridIcon, ListIcon } from '#/components/icons';
+import { GridIcon, ListIcon, UsersIcon } from '#/components/icons';
 import { APPLICATION_ROUTES } from '#/utils/constants';
 
 import styles from './app-sidebar.module.css';
@@ -16,6 +16,7 @@ type MenuItem = {
 const MENU_ITEMS: MenuItem[] = [
     { route: APPLICATION_ROUTES.blogs, label: 'Blogs', Icon: ListIcon },
     { route: APPLICATION_ROUTES.posts, label: 'Posts', Icon: GridIcon },
+    { route: APPLICATION_ROUTES.users, label: 'Users', Icon: UsersIcon },
 ];
 
 export const AppSidebar = () => (

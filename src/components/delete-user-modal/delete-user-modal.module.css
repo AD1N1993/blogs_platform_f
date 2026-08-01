@@ -1,0 +1,40 @@
+.message {
+    margin: 0 0 var(--space-l);
+    color: var(--color-text);
+}
+
+.error {
+    margin: 0 0 var(--space-m);
+    font-size: 12px;
+    color: var(--color-negative);
+}
+
+.actions {
+    display: flex;
+    gap: var(--space-m);
+}
+
+.no,
+.yes {
+    flex: 1;
+    height: 40px;
+    cursor: pointer;
+    border-radius: var(--radius-s);
+}
+
+.no {
+    color: var(--color-bg);
+    background-color: var(--color-accent);
+    border: none;
+}
+
+.yes {
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+}
+
+.yes:disabled {
+    cursor: progress;
+    opacity: 0.6;
+}

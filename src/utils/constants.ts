@@ -8,6 +8,13 @@ export const APP_CONFIG = {
     apiUrl: import.meta.env.VITE_API_URL ?? '/backend-api',
     contextRoot: import.meta.env.VITE_CONTEXT_ROOT ?? '/',
     useMock: import.meta.env.VITE_USE_MOCK === 'enabled',
+    /**
+     * The Users section has no login screen yet, so requests to /users authenticate with
+     * fixed Basic Auth credentials matching the backend's ADMIN_USERNAME/ADMIN_PASSWORD.
+     * Remove once real admin auth is wired up.
+     */
+    adminUsername: import.meta.env.VITE_ADMIN_USERNAME ?? 'admin',
+    adminPassword: import.meta.env.VITE_ADMIN_PASSWORD ?? 'qwerty',
 } as const;
 
 export const APPLICATION_ROUTES = {
@@ -16,6 +23,7 @@ export const APPLICATION_ROUTES = {
     blog: '/blogs/:blogId',
     posts: '/posts',
     post: '/posts/:postId',
+    users: '/users',
     notFound: '*',
 } as const;
 
@@ -28,8 +36,10 @@ export const QUERY_KEYS = {
     posts: ['posts'] as const,
     post: (postId: string) => ['posts', postId] as const,
     blogPosts: (blogId: string) => ['blogs', blogId, 'posts'] as const,
+    users: ['users'] as const,
 };
 
 /** The API caps pageSize at 20. */
 export const DEFAULT_PAGE_SIZE = 5;
 export const POSTS_PAGE_SIZE = 6;
+export const USERS_PAGE_SIZE = 10;

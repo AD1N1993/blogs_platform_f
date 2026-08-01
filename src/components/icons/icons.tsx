@@ -108,6 +108,68 @@ export const ChevronRightIcon = ({ className }: IconProps) => (
     </svg>
 );
 
+export const UsersIcon = ({ className }: IconProps) => (
+    <svg
+        className={className}
+        width='16'
+        height='16'
+        viewBox='0 0 16 16'
+        fill='none'
+        aria-hidden='true'
+    >
+        <circle cx='6' cy='5' r='2.5' stroke='currentColor' strokeWidth='1.5' />
+        <path
+            d='M1.5 14c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4'
+            stroke='currentColor'
+            strokeWidth='1.5'
+            strokeLinecap='round'
+        />
+        <path
+            d='M10.5 3.5c1.1 0 2 .9 2 2s-.9 2-2 2M12.5 14c0-1.9-1.2-3.3-3-3.8'
+            stroke='currentColor'
+            strokeWidth='1.5'
+            strokeLinecap='round'
+        />
+    </svg>
+);
+
+export const CloseIcon = ({ className }: IconProps) => (
+    <svg
+        className={className}
+        width='16'
+        height='16'
+        viewBox='0 0 16 16'
+        fill='none'
+        aria-hidden='true'
+    >
+        <path
+            d='M4 4l8 8M12 4l-8 8'
+            stroke='currentColor'
+            strokeWidth='1.5'
+            strokeLinecap='round'
+        />
+    </svg>
+);
+
+export const TrashIcon = ({ className }: IconProps) => (
+    <svg
+        className={className}
+        width='16'
+        height='16'
+        viewBox='0 0 16 16'
+        fill='none'
+        aria-hidden='true'
+    >
+        <path
+            d='M3 5h10M6.5 5V3.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1V5M6.5 8v4M9.5 8v4M4 5l.6 8a1 1 0 0 0 1 .9h4.8a1 1 0 0 0 1-.9l.6-8'
+            stroke='currentColor'
+            strokeWidth='1.5'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+        />
+    </svg>
+);
+
 export const ArrowLeftIcon = ({ className }: IconProps) => (
     <svg
         className={className}

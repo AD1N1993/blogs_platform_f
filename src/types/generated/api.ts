@@ -522,6 +522,216 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    '/users': {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a paginated list of users */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Case-insensitive search by login (combined with searchEmailTerm via OR) */
+                    searchLoginTerm?: string;
+                    /** @description Case-insensitive search by email (combined with searchLoginTerm via OR) */
+                    searchEmailTerm?: string;
+                    /** @description Page number (positive integer) */
+                    pageNumber?: components['parameters']['PageNumber'];
+                    /** @description Page size (1-20) */
+                    pageSize?: components['parameters']['PageSize'];
+                    /** @description Field to sort by (unknown fields fall back to createdAt) */
+                    sortBy?: 'login' | 'email' | 'createdAt';
+                    /** @description Sort direction */
+                    sortDirection?: components['parameters']['SortDirection'];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Paginated list of users */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        'application/json': components['schemas']['UserPaginator'];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /** Create a new user */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    'application/json': components['schemas']['UserInputModel'];
+                };
+            };
+            responses: {
+                /** @description The user was successfully created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        'application/json': components['schemas']['UserViewModel'];
+                    };
+                };
+                /** @description Validation error, or login/email is not unique (BLL rule) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        'application/json': components['schemas']['ValidationErrorResponse'];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    '/users/{id}': {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a user by ID */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description MongoDB ObjectId of the user */
+                    id: components['parameters']['UserId'];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description User deleted successfully */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid ObjectId format */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        'application/json': components['schemas']['ValidationErrorResponse'];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description User not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    '/auth/login': {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Try to login a user with loginOrEmail and password */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    'application/json': components['schemas']['LoginInputModel'];
+                };
+            };
+            responses: {
+                /** @description Login and password are correct */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        'application/json': components['schemas']['ValidationErrorResponse'];
+                    };
+                };
+                /** @description Login or password is wrong */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     '/blogs/{blogId}/posts': {
         parameters: {
             query?: never;
@@ -793,6 +1003,59 @@ export interface components {
             totalCount: number;
             items: components['schemas']['BlogViewModel'][];
         };
+        UserViewModel: {
+            /**
+             * @description MongoDB ObjectId of the user
+             * @example 66efeaadeb3dafea3c3971fb
+             */
+            id: string;
+            /**
+             * @description User login (3-10 chars)
+             * @example dimych
+             */
+            login: string;
+            /** @example dimych@gmail.com */
+            email: string;
+            /**
+             * Format: date-time
+             * @example 2026-07-30T10:15:30.000Z
+             */
+            createdAt: string;
+        };
+        UserInputModel: {
+            /**
+             * @description Login (3-10 chars, alphanumeric/underscore/hyphen), must be unique
+             * @example dimych
+             */
+            login: string;
+            /**
+             * @description Password (6-20 chars), hashed with bcrypt before storing
+             * @example qwerty123
+             */
+            password: string;
+            /**
+             * @description Must be unique
+             * @example dimych@gmail.com
+             */
+            email: string;
+        };
+        UserPaginator: {
+            /** @example 1 */
+            pagesCount: number;
+            /** @example 1 */
+            page: number;
+            /** @example 10 */
+            pageSize: number;
+            /** @example 2 */
+            totalCount: number;
+            items: components['schemas']['UserViewModel'][];
+        };
+        LoginInputModel: {
+            /** @example dimych */
+            loginOrEmail: string;
+            /** @example qwerty123 */
+            password: string;
+        };
     };
     responses: never;
     parameters: {
@@ -808,6 +1071,8 @@ export interface components {
         BlogId: string;
         /** @description MongoDB ObjectId of the blog */
         BlogIdPath: string;
+        /** @description MongoDB ObjectId of the user */
+        UserId: string;
     };
     requestBodies: never;
     headers: never;
