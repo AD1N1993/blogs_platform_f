@@ -18,3 +18,29 @@
     line-height: 36px;
     color: var(--color-text);
 }
+
+.account {
+    display: flex;
+    gap: var(--space-m);
+    align-items: center;
+    margin-left: auto;
+    font-size: 14px;
+}
+
+.login {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.signIn,
+.signOut {
+    color: var(--color-link);
+}
+
+.signOut {
+    padding: 0;
+    cursor: pointer;
+    background: none;
+    border: none;
+    text-decoration: underline;
+}

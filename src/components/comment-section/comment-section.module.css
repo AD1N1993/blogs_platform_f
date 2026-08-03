@@ -1,0 +1,26 @@
+.section {
+    padding: var(--space-m);
+    border: 1px solid var(--color-border);
+    border-top: none;
+}
+
+.title {
+    margin: 0 0 var(--space-m);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.list {
+    margin-top: var(--space-m);
+}
+
+.error {
+    margin: var(--space-m) 0 0;
+    color: var(--color-negative);
+}
+
+.empty {
+    margin: var(--space-m) 0 0;
+    color: var(--color-text-secondary);
+}

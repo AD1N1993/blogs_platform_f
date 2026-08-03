@@ -41,9 +41,15 @@ export const QUERY_KEYS = {
     post: (postId: string) => ['posts', postId] as const,
     blogPosts: (blogId: string) => ['blogs', blogId, 'posts'] as const,
     users: ['users'] as const,
+    me: ['me'] as const,
+    postComments: (postId: string) => ['posts', postId, 'comments'] as const,
 };
 
 /** The API caps pageSize at 20. */
 export const DEFAULT_PAGE_SIZE = 5;
 export const POSTS_PAGE_SIZE = 6;
 export const USERS_PAGE_SIZE = 10;
+/** UC-2: 15 latest comments, "Show more" reveals 15 more each time. */
+export const COMMENTS_PAGE_SIZE = 15;
+export const COMMENT_CONTENT_MIN_LENGTH = 20;
+export const COMMENT_CONTENT_MAX_LENGTH = 300;

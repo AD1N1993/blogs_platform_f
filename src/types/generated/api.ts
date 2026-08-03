@@ -701,12 +701,14 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description Login and password are correct */
-                204: {
+                /** @description Returns JWT accessToken */
+                200: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        'application/json': components['schemas']['LoginSuccessViewModel'];
+                    };
                 };
                 /** @description Validation error */
                 400: {
@@ -727,6 +729,297 @@ export interface paths {
             };
         };
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    '/auth/me': {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get information about the current user */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Success */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        'application/json': components['schemas']['MeViewModel'];
+                    };
+                };
+                /** @description Access token is missing, malformed or expired */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    '/posts/{postId}/comments': {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a paginated list of comments for a post */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number (positive integer) */
+                    pageNumber?: components['parameters']['PageNumber'];
+                    /** @description Page size (1-20) */
+                    pageSize?: components['parameters']['PageSize'];
+                    /** @description Field to sort by (unknown fields fall back to createdAt) */
+                    sortBy?: 'content' | 'createdAt';
+                    /** @description Sort direction */
+                    sortDirection?: components['parameters']['SortDirection'];
+                };
+                header?: never;
+                path: {
+                    /** @description MongoDB ObjectId of the post */
+                    postId: components['parameters']['PostIdPath'];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Paginated list of comments */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        'application/json': components['schemas']['CommentPaginator'];
+                    };
+                };
+                /** @description Post not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /** Create a new comment for a post */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description MongoDB ObjectId of the post */
+                    postId: components['parameters']['PostIdPath'];
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    'application/json': components['schemas']['CommentInputModel'];
+                };
+            };
+            responses: {
+                /** @description The comment was successfully created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        'application/json': components['schemas']['CommentViewModel'];
+                    };
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        'application/json': components['schemas']['ValidationErrorResponse'];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Post not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    '/comments/{id}': {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a comment by id */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description MongoDB ObjectId of the comment */
+                    id: components['parameters']['CommentId'];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The requested comment */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        'application/json': components['schemas']['CommentViewModel'];
+                    };
+                };
+                /** @description Comment not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        /** Update an existing comment (own comments only) */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description MongoDB ObjectId of the comment */
+                    id: components['parameters']['CommentId'];
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    'application/json': components['schemas']['CommentInputModel'];
+                };
+            };
+            responses: {
+                /** @description The comment was updated */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        'application/json': components['schemas']['ValidationErrorResponse'];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description The comment belongs to another user */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Comment not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        /** Delete a comment (own comments only) */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description MongoDB ObjectId of the comment */
+                    id: components['parameters']['CommentId'];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The comment was deleted */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description The comment belongs to another user */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Comment not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -1056,6 +1349,51 @@ export interface components {
             /** @example qwerty123 */
             password: string;
         };
+        LoginSuccessViewModel: {
+            /** @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGExYjJjM2Q0ZTVmNmE3YjhjOWQwZTEifQ.5m8vQKZ1YxN2pR3sT4uV6wX7yZ8aB9cD0eF1gH2iJ3k */
+            accessToken: string;
+        };
+        MeViewModel: {
+            /** @example dimych@gmail.com */
+            email: string;
+            /** @example dimych */
+            login: string;
+            /** @example 68a1b2c3d4e5f6a7b8c9d0e1 */
+            userId: string;
+        };
+        CommentatorInfo: {
+            /** @example 68a1b2c3d4e5f6a7b8c9d0e1 */
+            userId: string;
+            /** @example dimych */
+            userLogin: string;
+        };
+        CommentViewModel: {
+            /** @example 68a1b2c3d4e5f6a7b8c9d0e2 */
+            id: string;
+            /** @example a valid comment with enough length */
+            content: string;
+            commentatorInfo: components['schemas']['CommentatorInfo'];
+            /**
+             * Format: date-time
+             * @example 2026-08-02T19:45:09.948Z
+             */
+            createdAt: string;
+        };
+        CommentInputModel: {
+            /** @example a valid comment with enough length */
+            content: string;
+        };
+        CommentPaginator: {
+            /** @example 3 */
+            pagesCount: number;
+            /** @example 1 */
+            page: number;
+            /** @example 15 */
+            pageSize: number;
+            /** @example 25 */
+            totalCount: number;
+            items: components['schemas']['CommentViewModel'][];
+        };
     };
     responses: never;
     parameters: {
@@ -1073,6 +1411,10 @@ export interface components {
         BlogIdPath: string;
         /** @description MongoDB ObjectId of the user */
         UserId: string;
+        /** @description MongoDB ObjectId of the post */
+        PostIdPath: string;
+        /** @description MongoDB ObjectId of the comment */
+        CommentId: string;
     };
     requestBodies: never;
     headers: never;

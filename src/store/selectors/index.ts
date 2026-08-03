@@ -1,5 +1,10 @@
 import type { ReduxStore } from '#/types/store';
 
+export const authSelectors = {
+    user: (state: ReduxStore) => state.auth.user,
+    isAuthenticated: (state: ReduxStore) => state.auth.user !== null,
+};
+
 export const blogsFilterSelectors = {
     filter: (state: ReduxStore) => state.blogsFilter,
     searchNameTerm: (state: ReduxStore) => state.blogsFilter.searchNameTerm,

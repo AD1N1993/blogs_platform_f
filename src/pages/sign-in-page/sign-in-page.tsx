@@ -55,7 +55,7 @@ export const SignInPage = () => {
                 {login.isError ? (
                     <p className={styles.error} role='alert'>
                         {login.error instanceof ApiError && login.error.status === 401
-                            ? 'Login or password is incorrect'
+                            ? 'The password or the email or Username are incorrect. Try again, please'
                             : 'Failed to sign in'}
                     </p>
                 ) : null}

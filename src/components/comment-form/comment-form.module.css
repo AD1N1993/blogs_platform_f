@@ -1,0 +1,58 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+}
+
+.textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: var(--space-s) 12px;
+    font: inherit;
+    color: var(--color-text);
+    resize: vertical;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-s);
+}
+
+.textarea:focus {
+    border-color: var(--color-text-secondary);
+    outline: none;
+}
+
+.error {
+    font-size: 12px;
+    color: var(--color-negative);
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-s);
+}
+
+.cancel,
+.submit {
+    height: 32px;
+    padding: 0 var(--space-m);
+    cursor: pointer;
+    border-radius: var(--radius-s);
+}
+
+.cancel {
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+}
+
+.submit {
+    color: var(--color-bg);
+    background-color: var(--color-accent);
+    border: none;
+}
+
+.submit:disabled {
+    cursor: default;
+    opacity: 0.5;
+}

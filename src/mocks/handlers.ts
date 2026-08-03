@@ -2,12 +2,25 @@ import { HttpResponse, http } from 'msw';
 
 import type { ConfirmEmailInput, LoginInput, ResendEmailInput, SignUpInput } from '#/types/auth';
 import type { Blog } from '#/types/blog';
+import type { CommentInput } from '#/types/comment';
 import type { Post } from '#/types/post';
 import { APP_CONFIG, DEFAULT_PAGE_SIZE } from '#/utils/constants';
 
 import { pendingRegistrationsStore } from './fixtures/auth';
 import { BLOGS_FIXTURE } from './fixtures/blogs';
+import { commentsStore, type MockComment } from './fixtures/comments';
 import { POSTS_FIXTURE } from './fixtures/posts';
+
+const MOCK_TOKEN_PREFIX = 'mock-token-';
+
+const readBearerLogin = (request: Request): string | null => {
+    const header = request.headers.get('authorization');
+    if (!header?.startsWith('Bearer ')) return null;
+
+    const token = header.slice('Bearer '.length);
+
+    return token.startsWith(MOCK_TOKEN_PREFIX) ? token.slice(MOCK_TOKEN_PREFIX.length) : null;
+};
 
 const apiPath = (path: string) => `${APP_CONFIG.apiUrl}${path}`;
 
@@ -186,7 +199,7 @@ export const handlers = [
         return new HttpResponse(null, { status: 204 });
     }),
 
-    // The real /auth/login only checks credentials (204/401) — mirror that here.
+    // The real /auth/login now returns a JWT accessToken (200), not a bare 204.
     http.post(apiPath('/auth/login'), async ({ request }) => {
         const { loginOrEmail, password } = (await request.json()) as LoginInput;
 
@@ -195,6 +208,108 @@ export const handlers = [
         if (!registration?.isConfirmed || registration.password !== password) {
             return new HttpResponse(null, { status: 401 });
         }
+
+        return HttpResponse.json({ accessToken: `${MOCK_TOKEN_PREFIX}${registration.login}` });
+    }),
+
+    http.get(apiPath('/auth/me'), ({ request }) => {
+        const login = readBearerLogin(request);
+        const registration = login ? pendingRegistrationsStore.findByLoginOrEmail(login) : null;
+
+        if (!registration) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        return HttpResponse.json({
+            email: registration.email,
+            login: registration.login,
+            userId: `mock-user-${registration.login}`,
+        });
+    }),
+
+    http.get(apiPath('/posts/:postId/comments'), ({ params, request }) => {
+        const { pageNumber, pageSize } = readQuery(request);
+
+        const comments = commentsStore
+            .findByPostId(params.postId as string)
+            .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+        return HttpResponse.json(buildPaginator(comments, pageNumber, pageSize));
+    }),
+
+    http.post(apiPath('/posts/:postId/comments'), async ({ params, request }) => {
+        const login = readBearerLogin(request);
+        const registration = login ? pendingRegistrationsStore.findByLoginOrEmail(login) : null;
+
+        if (!registration) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const { content } = (await request.json()) as CommentInput;
+
+        const comment: MockComment = {
+            id: `mock-comment-${Date.now()}-${Math.round(Math.random() * 1000)}`,
+            postId: params.postId as string,
+            content,
+            commentatorInfo: {
+                userId: `mock-user-${registration.login}`,
+                userLogin: registration.login,
+            },
+            createdAt: new Date().toISOString(),
+        };
+
+        commentsStore.add(comment);
+
+        return HttpResponse.json(comment, { status: 201 });
+    }),
+
+    http.get(apiPath('/comments/:id'), ({ params }) => {
+        const comment = commentsStore.findById(params.id as string);
+
+        return comment ? HttpResponse.json(comment) : new HttpResponse(null, { status: 404 });
+    }),
+
+    http.put(apiPath('/comments/:id'), async ({ params, request }) => {
+        const login = readBearerLogin(request);
+        const registration = login ? pendingRegistrationsStore.findByLoginOrEmail(login) : null;
+
+        if (!registration) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const comment = commentsStore.findById(params.id as string);
+        if (!comment) {
+            return new HttpResponse(null, { status: 404 });
+        }
+
+        if (comment.commentatorInfo.userLogin !== registration.login) {
+            return new HttpResponse(null, { status: 403 });
+        }
+
+        const { content } = (await request.json()) as CommentInput;
+        commentsStore.update(comment.id, content);
+
+        return new HttpResponse(null, { status: 204 });
+    }),
+
+    http.delete(apiPath('/comments/:id'), ({ params, request }) => {
+        const login = readBearerLogin(request);
+        const registration = login ? pendingRegistrationsStore.findByLoginOrEmail(login) : null;
+
+        if (!registration) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const comment = commentsStore.findById(params.id as string);
+        if (!comment) {
+            return new HttpResponse(null, { status: 404 });
+        }
+
+        if (comment.commentatorInfo.userLogin !== registration.login) {
+            return new HttpResponse(null, { status: 403 });
+        }
+
+        commentsStore.remove(comment.id);
 
         return new HttpResponse(null, { status: 204 });
     }),

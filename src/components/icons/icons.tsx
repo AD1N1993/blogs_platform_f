@@ -170,6 +170,40 @@ export const TrashIcon = ({ className }: IconProps) => (
     </svg>
 );
 
+export const MoreIcon = ({ className }: IconProps) => (
+    <svg
+        className={className}
+        width='16'
+        height='16'
+        viewBox='0 0 16 16'
+        fill='currentColor'
+        aria-hidden='true'
+    >
+        <circle cx='8' cy='3' r='1.3' />
+        <circle cx='8' cy='8' r='1.3' />
+        <circle cx='8' cy='13' r='1.3' />
+    </svg>
+);
+
+export const PencilIcon = ({ className }: IconProps) => (
+    <svg
+        className={className}
+        width='16'
+        height='16'
+        viewBox='0 0 16 16'
+        fill='none'
+        aria-hidden='true'
+    >
+        <path
+            d='M11 2.5a1.4 1.4 0 0 1 2 2L4.5 13 2 13.5 2.5 11z'
+            stroke='currentColor'
+            strokeWidth='1.5'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+        />
+    </svg>
+);
+
 export const ArrowLeftIcon = ({ className }: IconProps) => (
     <svg
         className={className}

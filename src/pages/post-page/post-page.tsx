@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Avatar } from '#/components/avatar';
 import { BackLink } from '#/components/back-link';
 import { Breadcrumbs } from '#/components/breadcrumbs';
+import { CommentSection } from '#/components/comment-section';
 import { ImagePlaceholderIcon } from '#/components/icons';
 import { Spinner } from '#/components/spinner';
 import { usePostQuery } from '#/hooks/use-posts';
@@ -73,6 +74,8 @@ export const PostPage = () => {
                             </p>
                         ))}
                     </div>
+
+                    <CommentSection postId={post.id} />
                 </article>
             ) : null}
         </div>

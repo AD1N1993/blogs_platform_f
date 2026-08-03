@@ -6,6 +6,8 @@ export {
     GridIcon,
     ImagePlaceholderIcon,
     ListIcon,
+    MoreIcon,
+    PencilIcon,
     SearchIcon,
     TrashIcon,
     UsersIcon,

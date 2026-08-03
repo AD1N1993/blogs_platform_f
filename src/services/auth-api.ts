@@ -1,4 +1,11 @@
-import type { ConfirmEmailInput, LoginInput, ResendEmailInput, SignUpInput } from '#/types/auth';
+import type {
+    ConfirmEmailInput,
+    CurrentUser,
+    LoginInput,
+    LoginResponse,
+    ResendEmailInput,
+    SignUpInput,
+} from '#/types/auth';
 
 import { httpClient } from './http-client';
 
@@ -15,7 +22,15 @@ export const authApi = {
         await httpClient.post('/auth/registration-email-resending', input);
     },
 
-    login: async (input: LoginInput): Promise<void> => {
-        await httpClient.post('/auth/login', input);
+    login: async (input: LoginInput): Promise<LoginResponse> => {
+        const { data } = await httpClient.post<LoginResponse>('/auth/login', input);
+
+        return data;
+    },
+
+    me: async (): Promise<CurrentUser> => {
+        const { data } = await httpClient.get<CurrentUser>('/auth/me');
+
+        return data;
     },
 };

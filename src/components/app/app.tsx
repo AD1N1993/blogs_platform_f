@@ -1,10 +1,14 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppLayout } from '#/components/app-layout';
 import { AuthLayout } from '#/components/auth-layout';
 import { Spinner } from '#/components/spinner';
+import { useAppDispatch } from '#/hooks/app';
+import { useMeQuery } from '#/hooks/use-auth';
 import { APPLICATION_ROUTES } from '#/utils/constants';
+import { authTokenStorage } from '#services/auth-token-storage';
+import { setCurrentUser } from '#slices/auth-slice';
 
 const BlogsPage = lazy(() =>
     import('#/pages/blogs-page').then((module) => ({ default: module.BlogsPage })),
@@ -36,39 +40,50 @@ const EmailConfirmationExpiredPage = lazy(() =>
     import('#/pages/email-confirmation-expired-page').then((module) => ({
         default: module.EmailConfirmationExpiredPage,
     })),
-); 
+);
 const NotFoundPage = lazy(() =>
     import('#/pages/not-found-page').then((module) => ({ default: module.NotFoundPage })),
 );
 
-export const App = () => (
-    <Suspense fallback={<Spinner />}>
-        <Routes>
-            <Route element={<AuthLayout />}>
-                <Route path={APPLICATION_ROUTES.signUp} element={<SignUpPage />} />
-                <Route path={APPLICATION_ROUTES.signIn} element={<SignInPage />} />
-                <Route
-                    path={APPLICATION_ROUTES.emailConfirmation}
-                    element={<EmailConfirmationPage />}
-                />
-                <Route
-                    path={APPLICATION_ROUTES.emailConfirmationExpired}
-                    element={<EmailConfirmationExpiredPage />}
-                />
-            </Route>
+export const App = () => {
+    const dispatch = useAppDispatch();
+    const { data: currentUser } = useMeQuery(Boolean(authTokenStorage.get()));
 
-            <Route element={<AppLayout />}>
-                <Route
-                    path={APPLICATION_ROUTES.root}
-                    element={<Navigate to={APPLICATION_ROUTES.blogs} replace />}
-                />
-                <Route path={APPLICATION_ROUTES.blogs} element={<BlogsPage />} />
-                <Route path={APPLICATION_ROUTES.blog} element={<BlogPage />} />
-                <Route path={APPLICATION_ROUTES.posts} element={<PostsPage />} />
-                <Route path={APPLICATION_ROUTES.post} element={<PostPage />} />
-                <Route path={APPLICATION_ROUTES.users} element={<UsersPage />} />
-                <Route path={APPLICATION_ROUTES.notFound} element={<NotFoundPage />} />
-            </Route>
-        </Routes>
-    </Suspense>
-);
+    useEffect(() => {
+        if (currentUser) {
+            dispatch(setCurrentUser(currentUser));
+        }
+    }, [currentUser, dispatch]);
+
+    return (
+        <Suspense fallback={<Spinner />}>
+            <Routes>
+                <Route element={<AuthLayout />}>
+                    <Route path={APPLICATION_ROUTES.signUp} element={<SignUpPage />} />
+                    <Route path={APPLICATION_ROUTES.signIn} element={<SignInPage />} />
+                    <Route
+                        path={APPLICATION_ROUTES.emailConfirmation}
+                        element={<EmailConfirmationPage />}
+                    />
+                    <Route
+                        path={APPLICATION_ROUTES.emailConfirmationExpired}
+                        element={<EmailConfirmationExpiredPage />}
+                    />
+                </Route>
+
+                <Route element={<AppLayout />}>
+                    <Route
+                        path={APPLICATION_ROUTES.root}
+                        element={<Navigate to={APPLICATION_ROUTES.blogs} replace />}
+                    />
+                    <Route path={APPLICATION_ROUTES.blogs} element={<BlogsPage />} />
+                    <Route path={APPLICATION_ROUTES.blog} element={<BlogPage />} />
+                    <Route path={APPLICATION_ROUTES.posts} element={<PostsPage />} />
+                    <Route path={APPLICATION_ROUTES.post} element={<PostPage />} />
+                    <Route path={APPLICATION_ROUTES.users} element={<UsersPage />} />
+                    <Route path={APPLICATION_ROUTES.notFound} element={<NotFoundPage />} />
+                </Route>
+            </Routes>
+        </Suspense>
+    );
+};

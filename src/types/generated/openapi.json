@@ -616,8 +616,15 @@
                     }
                 },
                 "responses": {
-                    "204": {
-                        "description": "Login and password are correct"
+                    "200": {
+                        "description": "Returns JWT accessToken",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginSuccessViewModel"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Validation error",
@@ -631,6 +638,232 @@
                     },
                     "401": {
                         "description": "Login or password is wrong"
+                    }
+                }
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "summary": "Get information about the current user",
+                "tags": ["Auth"],
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MeViewModel"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Access token is missing, malformed or expired"
+                    }
+                }
+            }
+        },
+        "/posts/{postId}/comments": {
+            "get": {
+                "summary": "Get a paginated list of comments for a post",
+                "tags": ["Comments"],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/PostIdPath"
+                    },
+                    {
+                        "$ref": "#/components/parameters/PageNumber"
+                    },
+                    {
+                        "$ref": "#/components/parameters/PageSize"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortBy",
+                        "required": false,
+                        "description": "Field to sort by (unknown fields fall back to createdAt)",
+                        "schema": {
+                            "type": "string",
+                            "enum": ["content", "createdAt"],
+                            "default": "createdAt"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortDirection"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of comments",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CommentPaginator"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new comment for a post",
+                "tags": ["Comments"],
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/PostIdPath"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CommentInputModel"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The comment was successfully created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CommentViewModel"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Post not found"
+                    }
+                }
+            }
+        },
+        "/comments/{id}": {
+            "get": {
+                "summary": "Get a comment by id",
+                "tags": ["Comments"],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/CommentId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The requested comment",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CommentViewModel"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Comment not found"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update an existing comment (own comments only)",
+                "tags": ["Comments"],
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/CommentId"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CommentInputModel"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "The comment was updated"
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "The comment belongs to another user"
+                    },
+                    "404": {
+                        "description": "Comment not found"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a comment (own comments only)",
+                "tags": ["Comments"],
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/CommentId"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The comment was deleted"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "The comment belongs to another user"
+                    },
+                    "404": {
+                        "description": "Comment not found"
                     }
                 }
             }
@@ -824,6 +1057,26 @@
                 "schema": {
                     "type": "string",
                     "example": "66efeaadeb3dafea3c3971fb"
+                }
+            },
+            "PostIdPath": {
+                "in": "path",
+                "name": "postId",
+                "required": true,
+                "description": "MongoDB ObjectId of the post",
+                "schema": {
+                    "type": "string",
+                    "example": "66efeaadeb3dafea3c3971fb"
+                }
+            },
+            "CommentId": {
+                "in": "path",
+                "name": "id",
+                "required": true,
+                "description": "MongoDB ObjectId of the comment",
+                "schema": {
+                    "type": "string",
+                    "example": "68a1b2c3d4e5f6a7b8c9d0e2"
                 }
             }
         },
@@ -1169,12 +1422,121 @@
                         "example": "qwerty123"
                     }
                 }
+            },
+            "LoginSuccessViewModel": {
+                "type": "object",
+                "required": ["accessToken"],
+                "properties": {
+                    "accessToken": {
+                        "type": "string",
+                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGExYjJjM2Q0ZTVmNmE3YjhjOWQwZTEifQ.5m8vQKZ1YxN2pR3sT4uV6wX7yZ8aB9cD0eF1gH2iJ3k"
+                    }
+                }
+            },
+            "MeViewModel": {
+                "type": "object",
+                "required": ["email", "login", "userId"],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "dimych@gmail.com"
+                    },
+                    "login": {
+                        "type": "string",
+                        "example": "dimych"
+                    },
+                    "userId": {
+                        "type": "string",
+                        "example": "68a1b2c3d4e5f6a7b8c9d0e1"
+                    }
+                }
+            },
+            "CommentatorInfo": {
+                "type": "object",
+                "required": ["userId", "userLogin"],
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "example": "68a1b2c3d4e5f6a7b8c9d0e1"
+                    },
+                    "userLogin": {
+                        "type": "string",
+                        "example": "dimych"
+                    }
+                }
+            },
+            "CommentViewModel": {
+                "type": "object",
+                "required": ["id", "content", "commentatorInfo", "createdAt"],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "68a1b2c3d4e5f6a7b8c9d0e2"
+                    },
+                    "content": {
+                        "type": "string",
+                        "example": "a valid comment with enough length"
+                    },
+                    "commentatorInfo": {
+                        "$ref": "#/components/schemas/CommentatorInfo"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-08-02T19:45:09.948Z"
+                    }
+                }
+            },
+            "CommentInputModel": {
+                "type": "object",
+                "required": ["content"],
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "minLength": 20,
+                        "maxLength": 300,
+                        "example": "a valid comment with enough length"
+                    }
+                }
+            },
+            "CommentPaginator": {
+                "type": "object",
+                "required": ["pagesCount", "page", "pageSize", "totalCount", "items"],
+                "properties": {
+                    "pagesCount": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "totalCount": {
+                        "type": "integer",
+                        "example": 25
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CommentViewModel"
+                        }
+                    }
+                }
             }
         },
         "securitySchemes": {
             "BasicAuth": {
                 "type": "http",
                 "scheme": "basic"
+            },
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
             }
         }
     },
@@ -1198,6 +1560,10 @@
         {
             "name": "Auth",
             "description": "API for authentication"
+        },
+        {
+            "name": "Comments",
+            "description": "API for managing comments"
         }
     ]
 }
