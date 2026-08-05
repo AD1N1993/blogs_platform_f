@@ -10,15 +10,23 @@ import styles from './email-confirmation-expired-page.module.css';
 
 export const EmailConfirmationExpiredPage = () => {
     const [searchParams] = useSearchParams();
-    const email = searchParams.get('email');
+    /**
+     * The confirmation link the backend emails carries only `code`, so the address is unknown
+     * when the user lands here from their inbox — they have to retype it to get a new link.
+     * It is only pre-filled when the sign-up screen redirected here itself.
+     */
+    const emailFromQuery = searchParams.get('email');
+    const [email, setEmail] = useState(emailFromQuery ?? '');
     const [isResent, setIsResent] = useState(false);
 
     const resendEmail = useResendEmailMutation();
 
-    const handleResend = () => {
-        if (!email) return;
+    const trimmedEmail = email.trim();
 
-        resendEmail.mutate({ email }, { onSuccess: () => setIsResent(true) });
+    const handleResend = () => {
+        if (!trimmedEmail) return;
+
+        resendEmail.mutate({ email: trimmedEmail }, { onSuccess: () => setIsResent(true) });
     };
 
     return (
@@ -28,6 +36,19 @@ export const EmailConfirmationExpiredPage = () => {
                 Looks like the verification link has expired. Not to worry, we can send the link
                 again
             </p>
+
+            {emailFromQuery ? null : (
+                <label className={styles.field}>
+                    <span className={styles.label}>Email</span>
+                    <input
+                        className={styles.input}
+                        type='email'
+                        value={email}
+                        placeholder='Enter the email you signed up with'
+                        onChange={(event) => setEmail(event.target.value)}
+                    />
+                </label>
+            )}
 
             {isResent ? (
                 <p className={styles.success}>A new verification link has been sent.</p>
@@ -45,7 +66,7 @@ export const EmailConfirmationExpiredPage = () => {
                 type='button'
                 className={styles.button}
                 onClick={handleResend}
-                disabled={!email || resendEmail.isPending}
+                disabled={!trimmedEmail || resendEmail.isPending}
             >
                 {resendEmail.isPending ? 'Sending…' : 'Resend verification link'}
             </button>

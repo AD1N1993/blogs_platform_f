@@ -7,7 +7,7 @@ import signUpIllustration from '#/assets/sign-up-illustration.svg';
 import { AuthCard } from '#/components/auth-card';
 import { Modal } from '#/components/modal';
 import { useResendEmailMutation, useSignUpMutation } from '#/hooks/use-auth';
-import { APPLICATION_ROUTES } from '#/utils/constants';
+import { APPLICATION_ROUTES, AUTH_ERROR_MATCHERS, AUTH_MESSAGES } from '#/utils/constants';
 import { ApiError } from '#services/http-client';
 
 import styles from './sign-up-page.module.css';
@@ -16,6 +16,8 @@ import { signUpSchema, type SignUpFormValues } from './sign-up.schema';
 export const SignUpPage = () => {
     const [sentToEmail, setSentToEmail] = useState<string | null>(null);
     const [isEmailSentModalOpen, setIsEmailSentModalOpen] = useState(false);
+    /** UC-1 alt-scenario #1: an already-registered login/email is reported in a modal. */
+    const [duplicateMessage, setDuplicateMessage] = useState<string | null>(null);
 
     const signUp = useSignUpMutation();
     const resendEmail = useResendEmailMutation();
@@ -34,6 +36,17 @@ export const SignUpPage = () => {
             onSuccess: () => {
                 setSentToEmail(input.email);
                 setIsEmailSentModalOpen(true);
+            },
+            onError: (error) => {
+                if (!(error instanceof ApiError)) return;
+
+                const { emailNotUnique, loginNotUnique } = AUTH_ERROR_MATCHERS;
+
+                if (error.hasFieldError(emailNotUnique.field, emailNotUnique.message)) {
+                    setDuplicateMessage(AUTH_MESSAGES.emailAlreadyRegistered);
+                } else if (error.hasFieldError(loginNotUnique.field, loginNotUnique.message)) {
+                    setDuplicateMessage(AUTH_MESSAGES.loginAlreadyTaken);
+                }
             },
         });
     };
@@ -89,7 +102,7 @@ export const SignUpPage = () => {
                     </p>
                 ) : null}
 
-                {signUp.isError ? (
+                {signUp.isError && !duplicateMessage ? (
                     <p className={styles.error} role='alert'>
                         {signUp.error instanceof ApiError
                             ? signUp.error.message
@@ -111,13 +124,26 @@ export const SignUpPage = () => {
                 isOpen={isEmailSentModalOpen}
                 onClose={() => setIsEmailSentModalOpen(false)}
             >
-                <p className={styles.modalMessage}>
-                    We have sent a link to confirm your email to {sentToEmail}
-                </p>
+                <p className={styles.modalMessage}>{AUTH_MESSAGES.emailSent(sentToEmail ?? '')}</p>
                 <button
                     type='button'
                     className={styles.submit}
                     onClick={() => setIsEmailSentModalOpen(false)}
+                >
+                    OK
+                </button>
+            </Modal>
+
+            <Modal
+                title='Registration failed'
+                isOpen={duplicateMessage !== null}
+                onClose={() => setDuplicateMessage(null)}
+            >
+                <p className={styles.modalMessage}>{duplicateMessage}</p>
+                <button
+                    type='button'
+                    className={styles.submit}
+                    onClick={() => setDuplicateMessage(null)}
                 >
                     OK
                 </button>

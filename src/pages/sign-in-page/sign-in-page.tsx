@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { AuthCard } from '#/components/auth-card';
 import { useLoginMutation } from '#/hooks/use-auth';
-import { APPLICATION_ROUTES } from '#/utils/constants';
+import { APPLICATION_ROUTES, AUTH_MESSAGES } from '#/utils/constants';
 import { ApiError } from '#services/http-client';
 
 import styles from './sign-in-page.module.css';
@@ -55,7 +55,7 @@ export const SignInPage = () => {
                 {login.isError ? (
                     <p className={styles.error} role='alert'>
                         {login.error instanceof ApiError && login.error.status === 401
-                            ? 'The password or the email or Username are incorrect. Try again, please'
+                            ? AUTH_MESSAGES.signInFailed
                             : 'Failed to sign in'}
                     </p>
                 ) : null}

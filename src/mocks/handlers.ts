@@ -124,13 +124,21 @@ export const handlers = [
         return HttpResponse.json(buildPaginator(sorted, pageNumber, pageSize));
     }),
 
-    // The backend has no registration flow yet — these three stand in for it until it ships.
+    // Mirrors the real backend's responses (see auth.service.ts) so mock mode exercises the
+    // same error shapes: a bare `errorsMessages` list, with no machine-readable error code.
     http.post(apiPath('/auth/registration'), async ({ request }) => {
         const { login, email, password } = (await request.json()) as SignUpInput;
 
         if (pendingRegistrationsStore.findByEmail(email)) {
             return HttpResponse.json(
-                { errorsMessages: [{ field: 'email', message: 'Email already registered' }] },
+                { errorsMessages: [{ field: 'email', message: 'email should be unique' }] },
+                { status: 400 },
+            );
+        }
+
+        if (pendingRegistrationsStore.findByLoginOrEmail(login)) {
+            return HttpResponse.json(
+                { errorsMessages: [{ field: 'login', message: 'login should be unique' }] },
                 { status: 400 },
             );
         }
@@ -155,26 +163,28 @@ export const handlers = [
 
         if (!registration) {
             return HttpResponse.json(
-                { errorsMessages: [{ field: 'code', message: 'Confirmation code is incorrect' }] },
+                { errorsMessages: [{ field: 'code', message: 'confirmation code is incorrect' }] },
                 { status: 400 },
             );
         }
 
         if (registration.isExpired) {
             return HttpResponse.json(
-                {
-                    errorCode: 'CODE_EXPIRED',
-                    errorsMessages: [{ field: 'code', message: 'Confirmation code has expired' }],
-                },
+                { errorsMessages: [{ field: 'code', message: 'confirmation code is expired' }] },
                 { status: 400 },
             );
         }
 
-        // Confirming an already-confirmed code is a no-op success, not an error — React 19
-        // StrictMode double-invokes effects in dev, so this request can legitimately arrive twice.
-        if (!registration.isConfirmed) {
-            pendingRegistrationsStore.update(registration.email, { isConfirmed: true });
+        // The real backend rejects a reused code, and StrictMode double-invokes the confirming
+        // effect in dev — the page treats this specific failure as "already done".
+        if (registration.isConfirmed) {
+            return HttpResponse.json(
+                { errorsMessages: [{ field: 'code', message: 'email is already confirmed' }] },
+                { status: 400 },
+            );
         }
+
+        pendingRegistrationsStore.update(registration.email, { isConfirmed: true });
 
         return new HttpResponse(null, { status: 204 });
     }),
@@ -184,9 +194,16 @@ export const handlers = [
 
         const registration = pendingRegistrationsStore.findByEmail(email);
 
-        if (!registration || registration.isConfirmed) {
+        if (!registration) {
             return HttpResponse.json(
-                { errorsMessages: [{ field: 'email', message: 'Email is incorrect' }] },
+                { errorsMessages: [{ field: 'email', message: 'email is not registered' }] },
+                { status: 400 },
+            );
+        }
+
+        if (registration.isConfirmed) {
+            return HttpResponse.json(
+                { errorsMessages: [{ field: 'email', message: 'email is already confirmed' }] },
                 { status: 400 },
             );
         }
@@ -199,13 +216,14 @@ export const handlers = [
         return new HttpResponse(null, { status: 204 });
     }),
 
-    // The real /auth/login now returns a JWT accessToken (200), not a bare 204.
+    // The real /auth/login returns a JWT accessToken (200), not a bare 204. It checks only the
+    // credentials — an unconfirmed email still logs in — so the mock must not be stricter.
     http.post(apiPath('/auth/login'), async ({ request }) => {
         const { loginOrEmail, password } = (await request.json()) as LoginInput;
 
         const registration = pendingRegistrationsStore.findByLoginOrEmail(loginOrEmail);
 
-        if (!registration?.isConfirmed || registration.password !== password) {
+        if (!registration || registration.password !== password) {
             return new HttpResponse(null, { status: 401 });
         }
 

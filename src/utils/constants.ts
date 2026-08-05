@@ -53,3 +53,25 @@ export const USERS_PAGE_SIZE = 10;
 export const COMMENTS_PAGE_SIZE = 15;
 export const COMMENT_CONTENT_MIN_LENGTH = 20;
 export const COMMENT_CONTENT_MAX_LENGTH = 300;
+
+/**
+ * The backend has no machine-readable error codes — every business failure comes back as
+ * `{ errorsMessages: [{ field, message }] }` (see auth.service.ts). These are the message
+ * fragments the auth screens need to tell those failures apart.
+ */
+export const AUTH_ERROR_MATCHERS = {
+    codeExpired: { field: 'code', message: 'expired' },
+    codeAlreadyConfirmed: { field: 'code', message: 'already confirmed' },
+    emailNotUnique: { field: 'email', message: 'should be unique' },
+    loginNotUnique: { field: 'login', message: 'should be unique' },
+    emailAlreadyConfirmed: { field: 'email', message: 'already confirmed' },
+    emailNotRegistered: { field: 'email', message: 'not registered' },
+} as const;
+
+/** UC-1 message texts, kept together so the wording stays consistent across screens. */
+export const AUTH_MESSAGES = {
+    emailSent: (email: string) => `We have sent a link to confirm your email to ${email}`,
+    emailAlreadyRegistered: 'User with this email is already registered',
+    loginAlreadyTaken: 'User with this username is already registered',
+    signInFailed: 'The password or the email or Username are incorrect. Try again, please',
+} as const;

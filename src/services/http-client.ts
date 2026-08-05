@@ -35,6 +35,20 @@ export class ApiError extends Error {
         this.errorCode = errorCode;
         this.errorsMessages = errorsMessages;
     }
+
+    /** The backend reports every business failure as a field error, so screens match on those. */
+    public hasFieldError(field: string, messageSubstring?: string): boolean {
+        return this.errorsMessages.some(
+            (error) =>
+                error.field === field &&
+                (!messageSubstring ||
+                    error.message.toLowerCase().includes(messageSubstring.toLowerCase())),
+        );
+    }
+
+    public messageForField(field: string): string | undefined {
+        return this.errorsMessages.find((error) => error.field === field)?.message;
+    }
 }
 
 export const httpClient: AxiosInstance = axios.create({
